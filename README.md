@@ -8,7 +8,7 @@ Jednoduchá webová aplikace pro centralizovaný přehled zákaznických hodnoce
 - Filtrování dle období (`od` / `do`), země a kanálu.
 - Přehledné souhrnné KPI karty.
 - Automatický import dat přes API bez ručního uploadu souborů.
-- Konfigurace **každého zdroje zvlášť** (endpoint, auth token, parser, enabled).
+- Konfigurace **každého zdroje zvlášť** (URL exportu, auth token, parser, enabled).
 - Periodická synchronizace dat (nastavitelný interval v minutách).
 
 ## Spuštění
@@ -23,12 +23,13 @@ Aplikace bude dostupná na `http://localhost:8000`.
 
 V sekci **Nastavení API podle zdroje** má každý kanál vlastní konfiguraci:
 
-- `Endpoint` – URL konkrétního API pro daný zdroj.
+- `URL pro stahování dat` – adresa konkrétního exportu/API pro daný zdroj.
 - `Auth token` – volitelně (odesílá se jako `Authorization` header).
-- `Parser` – typ odpovědi API:
+- `Parser` – typ odpovědi API/exportu:
   - `standard-array` → API vrací přímo `[]` záznamů.
   - `wrapped-reviews` → API vrací `{ "reviews": [] }`.
   - `items-v2` → API vrací `{ "items": [] }` s mapováním polí.
+  - `heureka-xml` → XML export recenzí Heureka (`<reviews><review>...`).
 - `Aktivní` – zdroj se bude/nebo nebude periodicky synchronizovat.
 
 Po kliknutí na **Synchronizovat vše nyní** aplikace stáhne data ze všech aktivních zdrojů a sloučí je do dashboardu.
@@ -54,3 +55,14 @@ Po kliknutí na **Synchronizovat vše nyní** aplikace stáhne data ze všech ak
 - **ceneo**: merchant/partner integrace po registraci.
 - **Trusted Shops**: API dostupné v jejich business ekosystému.
 - **idealo.de / idealo.at**: partner onboarding + API/feed napojení.
+
+
+## Heureka CZ – připravené nastavení
+
+Pro zdroj `heureka.cz` je předvyplněná URL exportu:
+
+```
+https://www.heureka.cz/direct/dotaznik/export-review.php?key=3d1c95786eee7013da761a88cad80c60
+```
+
+Použijte parser `heureka-xml`. Aplikace mapuje `unix_timestamp`/`ordered` na datum, `total_rating` na `score` a každou recenzi počítá jako `reviews: 1`.

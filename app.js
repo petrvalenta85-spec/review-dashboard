@@ -38,9 +38,9 @@ const defaultSources = [
     id: 'heureka-cz',
     channel: 'heureka.cz',
     country: 'CZ',
-    endpoint: 'https://api.example.com/heureka-cz/reviews',
+    endpoint: 'https://www.heureka.cz/direct/dotaznik/export-review.php?key=3d1c95786eee7013da761a88cad80c60',
     token: '',
-    parser: 'standard-array',
+    parser: 'heureka-xml',
     enabled: true
   },
   {
@@ -111,7 +111,8 @@ const defaultSources = [
 const parserOptions = [
   { value: 'standard-array', label: 'standard-array ([])' },
   { value: 'wrapped-reviews', label: 'wrapped-reviews ({ reviews: [] })' },
-  { value: 'items-v2', label: 'items-v2 ({ items: [] })' }
+  { value: 'items-v2', label: 'items-v2 ({ items: [] })' },
+  { value: 'heureka-xml', label: 'heureka-xml (<reviews><review>)' }
 ];
 
 const dataStorageKey = 'bruderland-review-data';
@@ -159,6 +160,33 @@ function normalizeRecord(record, fallback) {
   };
 }
 
+function unixToDateString(unixValue) {
+  const unix = Number(unixValue);
+  if (!Number.isFinite(unix) || unix <= 0) return '';
+  return new Date(unix * 1000).toISOString().slice(0, 10);
+}
+
+function parseHeurekaXml(xmlText) {
+  const doc = new DOMParser().parseFromString(xmlText, 'application/xml');
+  const parserError = doc.querySelector('parsererror');
+  if (parserError) {
+    throw new Error('Neplatné XML v Heureka exportu.');
+  }
+
+  return [...doc.querySelectorAll('review')].map((review) => {
+    const ordered = review.querySelector('ordered')?.textContent?.trim();
+    const unixTimestamp = review.querySelector('unix_timestamp')?.textContent?.trim();
+    const ratingRaw = review.querySelector('total_rating')?.textContent?.trim() || '0';
+    const rating = Number(ratingRaw.replace(',', '.'));
+
+    return {
+      date: unixToDateString(unixTimestamp || ordered),
+      score: Number.isFinite(rating) ? rating : 0,
+      reviews: 1
+    };
+  });
+}
+
 function parseByType(payload, parser, source) {
   if (parser === 'standard-array' && Array.isArray(payload)) {
     return payload;
@@ -176,6 +204,10 @@ function parseByType(payload, parser, source) {
       score: item.rating,
       reviews: item.count
     }));
+  }
+
+  if (parser === 'heureka-xml' && typeof payload === 'string') {
+    return parseHeurekaXml(payload);
   }
 
   throw new Error(`Nepodporovaný formát odpovědi pro parser ${parser}`);
@@ -397,7 +429,7 @@ async function fetchSource(source) {
     throw new Error(`${source.channel}: ${response.status} ${response.statusText}`);
   }
 
-  const payload = await response.json();
+  const payload = source.parser === 'heureka-xml' ? await response.text() : await response.json();
   const extracted = parseByType(payload, source.parser, source);
   const normalized = extracted.map((record) => normalizeRecord(record, source));
   const valid = normalized.filter(isValidRecord);
