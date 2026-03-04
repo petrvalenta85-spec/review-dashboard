@@ -30,6 +30,10 @@
           <button id="saveSources" class="secondary">Uložit nastavení zdrojů</button>
         </div>
 
+        <div class="sync-indicators">
+          <span id="dataModeBadge" class="badge warn">Zdroj dat: Demo</span>
+          <span id="lastSyncBadge">Poslední úspěšná synchronizace: nikdy</span>
+        </div>
 
         <div class="source-editor">
           <h3>Přidat / upravit vybraný kanál</h3>
@@ -72,6 +76,8 @@
                 <th>URL pro stahování dat</th>
                 <th>Auth token (volitelně)</th>
                 <th>Parser</th>
+                <th>Poslední sync</th>
+                <th>Akce</th>
               </tr>
             </thead>
             <tbody id="sourceRows"></tbody>

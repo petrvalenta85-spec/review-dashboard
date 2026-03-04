@@ -10,102 +10,26 @@ const baseRecords = [
 ];
 
 const apiAvailability = [
-  {
-    channel: 'heureka.cz / heureka.sk',
-    status: 'Partnerské API',
-    note: 'Merchant/partner integrace po schválení.'
-  },
-  {
-    channel: 'arukereso / compari',
-    status: 'Neveřejné / partner-only',
-    note: 'Běžně se řeší obchodně, ne veřejným API klíčem.'
-  },
+  { channel: 'heureka.cz / heureka.sk', status: 'Partnerské API', note: 'Merchant/partner integrace po schválení.' },
+  { channel: 'arukereso / compari', status: 'Neveřejné / partner-only', note: 'Běžně se řeší obchodně, ne veřejným API klíčem.' },
   { channel: 'ceneo', status: 'Partnerské API', note: 'Merchant napojení po registraci.' },
-  {
-    channel: 'Trusted Shops',
-    status: 'Ano',
-    note: 'Dostupná API v rámci Trusted Shops ekosystému.'
-  },
-  {
-    channel: 'idealo.de / idealo.at',
-    status: 'Partnerské API',
-    note: 'Přístup po merchant onboarding procesu.'
-  }
+  { channel: 'Trusted Shops', status: 'Ano', note: 'Dostupná API v rámci Trusted Shops ekosystému.' },
+  { channel: 'idealo.de / idealo.at', status: 'Partnerské API', note: 'Přístup po merchant onboarding procesu.' }
 ];
 
 const defaultSources = [
   {
-    id: 'heureka-cz',
-    channel: 'heureka.cz',
-    country: 'CZ',
+    id: 'heureka-cz', channel: 'heureka.cz', country: 'CZ',
     endpoint: 'https://www.heureka.cz/direct/dotaznik/export-review.php?key=3d1c95786eee7013da761a88cad80c60',
-    token: '',
-    parser: 'heureka-xml',
-    enabled: true
+    token: '', parser: 'heureka-xml', enabled: true, lastSyncAt: ''
   },
-  {
-    id: 'heureka-sk',
-    channel: 'heureka.sk',
-    country: 'SK',
-    endpoint: 'https://api.example.com/heureka-sk/reviews',
-    token: '',
-    parser: 'wrapped-reviews',
-    enabled: true
-  },
-  {
-    id: 'arukereso',
-    channel: 'arukereso',
-    country: 'HU',
-    endpoint: 'https://api.example.com/arukereso/ratings',
-    token: '',
-    parser: 'items-v2',
-    enabled: false
-  },
-  {
-    id: 'ceneo',
-    channel: 'ceneo',
-    country: 'PL',
-    endpoint: 'https://api.example.com/ceneo/reviews',
-    token: '',
-    parser: 'standard-array',
-    enabled: false
-  },
-  {
-    id: 'compari',
-    channel: 'compari',
-    country: 'RO',
-    endpoint: 'https://api.example.com/compari/ratings',
-    token: '',
-    parser: 'items-v2',
-    enabled: false
-  },
-  {
-    id: 'trusted-shops',
-    channel: 'trustedshop',
-    country: 'DE',
-    endpoint: 'https://api.example.com/trusted-shops/reviews',
-    token: '',
-    parser: 'wrapped-reviews',
-    enabled: false
-  },
-  {
-    id: 'idealo-de',
-    channel: 'idealo.de',
-    country: 'DE',
-    endpoint: 'https://api.example.com/idealo-de/reviews',
-    token: '',
-    parser: 'standard-array',
-    enabled: false
-  },
-  {
-    id: 'idealo-at',
-    channel: 'idealo.at',
-    country: 'AT',
-    endpoint: 'https://api.example.com/idealo-at/reviews',
-    token: '',
-    parser: 'standard-array',
-    enabled: false
-  }
+  { id: 'heureka-sk', channel: 'heureka.sk', country: 'SK', endpoint: 'https://api.example.com/heureka-sk/reviews', token: '', parser: 'wrapped-reviews', enabled: true, lastSyncAt: '' },
+  { id: 'arukereso', channel: 'arukereso', country: 'HU', endpoint: 'https://api.example.com/arukereso/ratings', token: '', parser: 'items-v2', enabled: false, lastSyncAt: '' },
+  { id: 'ceneo', channel: 'ceneo', country: 'PL', endpoint: 'https://api.example.com/ceneo/reviews', token: '', parser: 'standard-array', enabled: false, lastSyncAt: '' },
+  { id: 'compari', channel: 'compari', country: 'RO', endpoint: 'https://api.example.com/compari/ratings', token: '', parser: 'items-v2', enabled: false, lastSyncAt: '' },
+  { id: 'trusted-shops', channel: 'trustedshop', country: 'DE', endpoint: 'https://api.example.com/trusted-shops/reviews', token: '', parser: 'wrapped-reviews', enabled: false, lastSyncAt: '' },
+  { id: 'idealo-de', channel: 'idealo.de', country: 'DE', endpoint: 'https://api.example.com/idealo-de/reviews', token: '', parser: 'standard-array', enabled: false, lastSyncAt: '' },
+  { id: 'idealo-at', channel: 'idealo.at', country: 'AT', endpoint: 'https://api.example.com/idealo-at/reviews', token: '', parser: 'standard-array', enabled: false, lastSyncAt: '' }
 ];
 
 const parserOptions = [
@@ -118,6 +42,7 @@ const parserOptions = [
 const dataStorageKey = 'bruderland-review-data';
 const sourceStorageKey = 'bruderland-source-configs';
 const intervalStorageKey = 'bruderland-api-refresh-minutes';
+const syncMetaStorageKey = 'bruderland-sync-meta';
 
 const dateFrom = document.querySelector('#dateFrom');
 const dateTo = document.querySelector('#dateTo');
@@ -135,6 +60,8 @@ const resetToDemo = document.querySelector('#resetToDemo');
 const saveSources = document.querySelector('#saveSources');
 const syncStatus = document.querySelector('#syncStatus');
 const apiAvailabilityRows = document.querySelector('#apiAvailabilityRows');
+const dataModeBadge = document.querySelector('#dataModeBadge');
+const lastSyncBadge = document.querySelector('#lastSyncBadge');
 
 const editorChannel = document.querySelector('#editorChannel');
 const editorCountry = document.querySelector('#editorCountry');
@@ -146,7 +73,39 @@ const addOrUpdateSource = document.querySelector('#addOrUpdateSource');
 
 let records = loadRecords();
 let sourceConfigs = loadSourceConfigs();
+let syncMeta = loadSyncMeta();
 let timerId = null;
+
+function nowIso() { return new Date().toISOString(); }
+function formatDateTime(iso) {
+  if (!iso) return 'nikdy';
+  const date = new Date(iso);
+  return Number.isNaN(date.getTime()) ? 'nikdy' : date.toLocaleString('cs-CZ');
+}
+
+function loadSyncMeta() {
+  const saved = localStorage.getItem(syncMetaStorageKey);
+  if (!saved) return { mode: 'demo', lastSyncAt: '' };
+  try {
+    const parsed = JSON.parse(saved);
+    return { mode: parsed.mode || 'demo', lastSyncAt: parsed.lastSyncAt || '' };
+  } catch {
+    return { mode: 'demo', lastSyncAt: '' };
+  }
+}
+function saveSyncMeta() { localStorage.setItem(syncMetaStorageKey, JSON.stringify(syncMeta)); }
+
+function updateSyncIndicator() {
+  if (!dataModeBadge || !lastSyncBadge) return;
+  if (syncMeta.mode === 'live') {
+    dataModeBadge.textContent = 'Zdroj dat: Live API';
+    dataModeBadge.className = 'badge ok';
+  } else {
+    dataModeBadge.textContent = 'Zdroj dat: Demo';
+    dataModeBadge.className = 'badge warn';
+  }
+  lastSyncBadge.textContent = `Poslední úspěšná synchronizace: ${formatDateTime(syncMeta.lastSyncAt)}`;
+}
 
 function isValidRecord(record) {
   if (!record || typeof record !== 'object') return false;
@@ -176,17 +135,13 @@ function unixToDateString(unixValue) {
 
 function parseHeurekaXml(xmlText) {
   const doc = new DOMParser().parseFromString(xmlText, 'application/xml');
-  const parserError = doc.querySelector('parsererror');
-  if (parserError) {
-    throw new Error('Neplatné XML v Heureka exportu.');
-  }
+  if (doc.querySelector('parsererror')) throw new Error('Neplatné XML v Heureka exportu.');
 
   return [...doc.querySelectorAll('review')].map((review) => {
     const ordered = review.querySelector('ordered')?.textContent?.trim();
     const unixTimestamp = review.querySelector('unix_timestamp')?.textContent?.trim();
     const ratingRaw = review.querySelector('total_rating')?.textContent?.trim() || '0';
     const rating = Number(ratingRaw.replace(',', '.'));
-
     return {
       date: unixToDateString(unixTimestamp || ordered),
       score: Number.isFinite(rating) ? rating : 0,
@@ -195,15 +150,9 @@ function parseHeurekaXml(xmlText) {
   });
 }
 
-function parseByType(payload, parser, source) {
-  if (parser === 'standard-array' && Array.isArray(payload)) {
-    return payload;
-  }
-
-  if (parser === 'wrapped-reviews' && payload && Array.isArray(payload.reviews)) {
-    return payload.reviews;
-  }
-
+function parseByType(payload, parser) {
+  if (parser === 'standard-array' && Array.isArray(payload)) return payload;
+  if (parser === 'wrapped-reviews' && payload && Array.isArray(payload.reviews)) return payload.reviews;
   if (parser === 'items-v2' && payload && Array.isArray(payload.items)) {
     return payload.items.map((item) => ({
       date: item.review_date,
@@ -213,18 +162,13 @@ function parseByType(payload, parser, source) {
       reviews: item.count
     }));
   }
-
-  if (parser === 'heureka-xml' && typeof payload === 'string') {
-    return parseHeurekaXml(payload);
-  }
-
+  if (parser === 'heureka-xml' && typeof payload === 'string') return parseHeurekaXml(payload);
   throw new Error(`Nepodporovaný formát odpovědi pro parser ${parser}`);
 }
 
 function loadRecords() {
   const saved = localStorage.getItem(dataStorageKey);
   if (!saved) return [...baseRecords];
-
   try {
     const parsed = JSON.parse(saved);
     if (!Array.isArray(parsed)) return [...baseRecords];
@@ -234,43 +178,31 @@ function loadRecords() {
     return [...baseRecords];
   }
 }
-
-function saveRecords() {
-  localStorage.setItem(dataStorageKey, JSON.stringify(records));
-}
+function saveRecords() { localStorage.setItem(dataStorageKey, JSON.stringify(records)); }
 
 function loadSourceConfigs() {
   const saved = localStorage.getItem(sourceStorageKey);
   if (!saved) return [...defaultSources];
-
   try {
     const parsed = JSON.parse(saved);
     if (!Array.isArray(parsed) || parsed.length === 0) return [...defaultSources];
     const knownIds = new Set(parsed.map((item) => item.id));
-    const mergedWithNewDefaults = [...parsed];
-    defaultSources.forEach((source) => {
-      if (!knownIds.has(source.id)) mergedWithNewDefaults.push(source);
-    });
-    return mergedWithNewDefaults;
+    const merged = [...parsed];
+    defaultSources.forEach((source) => { if (!knownIds.has(source.id)) merged.push(source); });
+    return merged.map((source) => ({ ...source, lastSyncAt: source.lastSyncAt || '' }));
   } catch {
     return [...defaultSources];
   }
 }
-
-function saveSourceConfigs() {
-  localStorage.setItem(sourceStorageKey, JSON.stringify(sourceConfigs));
-}
+function saveSourceConfigs() { localStorage.setItem(sourceStorageKey, JSON.stringify(sourceConfigs)); }
 
 function weightedAverage(inputRecords) {
   if (!inputRecords.length) return 0;
-  const totals = inputRecords.reduce(
-    (acc, item) => {
-      acc.scoreSum += item.score * item.reviews;
-      acc.reviewSum += item.reviews;
-      return acc;
-    },
-    { scoreSum: 0, reviewSum: 0 }
-  );
+  const totals = inputRecords.reduce((acc, item) => {
+    acc.scoreSum += item.score * item.reviews;
+    acc.reviewSum += item.reviews;
+    return acc;
+  }, { scoreSum: 0, reviewSum: 0 });
   return totals.reviewSum ? totals.scoreSum / totals.reviewSum : 0;
 }
 
@@ -281,7 +213,6 @@ function groupBy(inputRecords, key) {
     target.push(record);
     groups.set(record[key], target);
   });
-
   return [...groups.entries()].map(([name, items]) => ({
     name,
     avg: weightedAverage(items),
@@ -300,11 +231,9 @@ function sourceId(channel, country) {
   return `${channel}-${country}`.toLowerCase().replace(/[^a-z0-9]+/g, '-');
 }
 
-
 function populateFilters() {
   const selectedCountry = countryFilter.value || 'ALL';
   const selectedChannel = channelFilter.value || 'ALL';
-
   countryFilter.innerHTML = '';
   channelFilter.innerHTML = '';
   createOption(countryFilter, 'ALL', 'Všechny země');
@@ -312,7 +241,6 @@ function populateFilters() {
 
   const countries = [...new Set(records.map((entry) => entry.country))].sort();
   const channels = [...new Set(records.map((entry) => entry.channel))].sort();
-
   countries.forEach((country) => createOption(countryFilter, country, country));
   channels.forEach((channel) => createOption(channelFilter, channel, channel));
 
@@ -335,38 +263,25 @@ function renderSummary(inputRecords) {
   const totalReviews = inputRecords.reduce((sum, item) => sum + item.reviews, 0);
   const countries = new Set(inputRecords.map((r) => r.country)).size;
   const channels = new Set(inputRecords.map((r) => r.channel)).size;
-
   summaryCards.innerHTML = [
     ['Průměrné hodnocení', avg.toFixed(2)],
     ['Počet recenzí', totalReviews.toLocaleString('cs-CZ')],
     ['Aktivní země', countries],
     ['Aktivní kanály', channels]
-  ]
-    .map(
-      ([title, value]) => `<div class="card"><div>${title}</div><strong>${value}</strong></div>`
-    )
-    .join('');
+  ].map(([title, value]) => `<div class="card"><div>${title}</div><strong>${value}</strong></div>`).join('');
 }
 
 function renderTable(rowsNode, rows) {
   rowsNode.innerHTML = '';
-
   if (!rows.length) {
     rowsNode.innerHTML = '<tr><td colspan="3">Žádná data pro zvolené filtry.</td></tr>';
     return;
   }
-
-  rows
-    .sort((a, b) => b.avg - a.avg)
-    .forEach((entry) => {
-      const row = document.createElement('tr');
-      row.innerHTML = `
-        <td>${entry.name}</td>
-        <td>${entry.avg.toFixed(2)} / 5</td>
-        <td>${entry.reviews.toLocaleString('cs-CZ')}</td>
-      `;
-      rowsNode.append(row);
-    });
+  rows.sort((a, b) => b.avg - a.avg).forEach((entry) => {
+    const row = document.createElement('tr');
+    row.innerHTML = `<td>${entry.name}</td><td>${entry.avg.toFixed(2)} / 5</td><td>${entry.reviews.toLocaleString('cs-CZ')}</td>`;
+    rowsNode.append(row);
+  });
 }
 
 function renderApiAvailability() {
@@ -380,20 +295,15 @@ function renderApiAvailability() {
 
 function renderSourceSettings() {
   sourceRows.innerHTML = '';
-
   if (!sourceConfigs.length) {
-    sourceRows.innerHTML = '<tr><td colspan="6">Zatím není přidaný žádný zdroj.</td></tr>';
+    sourceRows.innerHTML = '<tr><td colspan="8">Zatím není přidaný žádný zdroj.</td></tr>';
     return;
   }
 
   sourceConfigs.forEach((source) => {
     const row = document.createElement('tr');
-
     const parserSelect = parserOptions
-      .map(
-        (opt) =>
-          `<option value="${opt.value}" ${opt.value === source.parser ? 'selected' : ''}>${opt.label}</option>`
-      )
+      .map((opt) => `<option value="${opt.value}" ${opt.value === source.parser ? 'selected' : ''}>${opt.label}</option>`)
       .join('');
 
     row.innerHTML = `
@@ -402,13 +312,10 @@ function renderSourceSettings() {
       <td>${source.country}</td>
       <td><input data-field="endpoint" data-id="${source.id}" value="${source.endpoint}" /></td>
       <td><input data-field="token" data-id="${source.id}" value="${source.token}" placeholder="Bearer ..." /></td>
-      <td>
-        <select data-field="parser" data-id="${source.id}">
-          ${parserSelect}
-        </select>
-      </td>
+      <td><select data-field="parser" data-id="${source.id}">${parserSelect}</select></td>
+      <td>${formatDateTime(source.lastSyncAt)}</td>
+      <td><button type="button" class="sync-one" data-action="sync-one" data-id="${source.id}">Sync kanál</button></td>
     `;
-
     sourceRows.append(row);
   });
 }
@@ -423,39 +330,6 @@ function renderEditorParsers() {
   });
 }
 
-function upsertSourceFromEditor() {
-  const channel = editorChannel.value.trim().toLowerCase();
-  const country = editorCountry.value.trim().toUpperCase();
-  const endpoint = editorEndpoint.value.trim();
-
-  if (!channel || !country || !endpoint) {
-    setSyncStatus('Pro uložení kanálu vyplňte kanál, zemi a URL.');
-    return;
-  }
-
-  const id = sourceId(channel, country);
-  const next = {
-    id,
-    channel,
-    country,
-    endpoint,
-    token: editorToken.value.trim(),
-    parser: editorParser.value,
-    enabled: editorEnabled.checked
-  };
-
-  const existingIndex = sourceConfigs.findIndex((source) => source.id === id);
-  if (existingIndex >= 0) {
-    sourceConfigs[existingIndex] = next;
-  } else {
-    sourceConfigs.push(next);
-  }
-
-  saveSourceConfigs();
-  renderSourceSettings();
-  setSyncStatus(`Kanál ${channel} (${country}) uložen.`);
-}
-
 function setSyncStatus(message) {
   syncStatus.textContent = `${new Date().toLocaleTimeString('cs-CZ')} · ${message}`;
 }
@@ -466,7 +340,6 @@ function updateSourceConfigFromUI() {
     const endpointEl = sourceRows.querySelector(`[data-field="endpoint"][data-id="${source.id}"]`);
     const tokenEl = sourceRows.querySelector(`[data-field="token"][data-id="${source.id}"]`);
     const parserEl = sourceRows.querySelector(`[data-field="parser"][data-id="${source.id}"]`);
-
     return {
       ...source,
       enabled: Boolean(enabledEl?.checked),
@@ -477,62 +350,111 @@ function updateSourceConfigFromUI() {
   });
 }
 
-async function fetchSource(source) {
-  if (!source.enabled || !source.endpoint) {
-    return { source: source.channel, records: [], invalid: 0, skipped: true };
+function upsertSourceFromEditor() {
+  const channel = editorChannel.value.trim().toLowerCase();
+  const country = editorCountry.value.trim().toUpperCase();
+  const endpoint = editorEndpoint.value.trim();
+  if (!channel || !country || !endpoint) {
+    setSyncStatus('Pro uložení kanálu vyplňte kanál, zemi a URL.');
+    return;
   }
+
+  const id = sourceId(channel, country);
+  const next = { id, channel, country, endpoint, token: editorToken.value.trim(), parser: editorParser.value, enabled: editorEnabled.checked, lastSyncAt: '' };
+  const idx = sourceConfigs.findIndex((source) => source.id === id);
+  if (idx >= 0) sourceConfigs[idx] = { ...sourceConfigs[idx], ...next };
+  else sourceConfigs.push(next);
+
+  saveSourceConfigs();
+  renderSourceSettings();
+  setSyncStatus(`Kanál ${channel} (${country}) uložen.`);
+}
+
+async function fetchSource(source, { force = false } = {}) {
+  if ((!source.enabled && !force) || !source.endpoint) return { source: source.channel, records: [], invalid: 0, skipped: true };
 
   const headers = { Accept: 'application/json' };
   if (source.token) headers.Authorization = source.token;
 
   const response = await fetch(source.endpoint, { headers });
-  if (!response.ok) {
-    throw new Error(`${source.channel}: ${response.status} ${response.statusText}`);
-  }
+  if (!response.ok) throw new Error(`${source.channel}: ${response.status} ${response.statusText}`);
 
   const payload = source.parser === 'heureka-xml' ? await response.text() : await response.json();
-  const extracted = parseByType(payload, source.parser, source);
+  const extracted = parseByType(payload, source.parser);
   const normalized = extracted.map((record) => normalizeRecord(record, source));
   const valid = normalized.filter(isValidRecord);
 
-  return {
-    source: source.channel,
-    records: valid,
-    invalid: normalized.length - valid.length,
-    skipped: false
-  };
+  return { source: source.channel, records: valid, invalid: normalized.length - valid.length, skipped: false };
+}
+
+function touchSourceSync(id) {
+  sourceConfigs = sourceConfigs.map((source) => (source.id === id ? { ...source, lastSyncAt: nowIso() } : source));
+  saveSourceConfigs();
+}
+
+function mergeChannelRecords(targetSource, newRecords) {
+  records = records.filter((record) => !(record.channel === targetSource.channel && record.country === targetSource.country));
+  records.push(...newRecords);
+}
+
+async function syncOneSource(sourceIdValue) {
+  updateSourceConfigFromUI();
+  saveSourceConfigs();
+  const source = sourceConfigs.find((item) => item.id === sourceIdValue);
+  if (!source) {
+    setSyncStatus('Zdroj nebyl nalezen.');
+    return;
+  }
+
+  try {
+    const result = await fetchSource(source, { force: true });
+    mergeChannelRecords(source, result.records);
+    saveRecords();
+    populateFilters();
+    renderDashboard();
+    touchSourceSync(source.id);
+    renderSourceSettings();
+
+    syncMeta = { mode: 'live', lastSyncAt: nowIso() };
+    saveSyncMeta();
+    updateSyncIndicator();
+
+    setSyncStatus(`Kanál ${source.channel} synchronizován: ${result.records.length} záznamů.`);
+  } catch (error) {
+    setSyncStatus(`Sync kanálu ${source.channel} selhal: ${error.message}`);
+  }
 }
 
 async function fetchAllSources() {
   updateSourceConfigFromUI();
   saveSourceConfigs();
 
-  const enabledCount = sourceConfigs.filter((source) => source.enabled).length;
-  if (!enabledCount) {
+  const enabledSources = sourceConfigs.filter((source) => source.enabled);
+  if (!enabledSources.length) {
     setSyncStatus('Není aktivní žádný zdroj. Zapněte aspoň jeden kanál.');
     return;
   }
 
-  const settled = await Promise.allSettled(sourceConfigs.map((source) => fetchSource(source)));
+  const settled = await Promise.allSettled(enabledSources.map((source) => fetchSource(source)));
   const merged = [];
   let invalidTotal = 0;
   const failed = [];
   let successSources = 0;
 
-  settled.forEach((result) => {
+  settled.forEach((result, index) => {
     if (result.status === 'fulfilled') {
-      if (!result.value.skipped) successSources += 1;
+      successSources += 1;
       invalidTotal += result.value.invalid;
       merged.push(...result.value.records);
-      return;
+      touchSourceSync(enabledSources[index].id);
+    } else {
+      failed.push(result.reason?.message || 'Neznámá chyba');
     }
-    failed.push(result.reason?.message || 'Neznámá chyba');
   });
 
   if (!merged.length) {
-    setSyncStatus(
-      `Synchronizace bez validních dat. Úspěšné zdroje: ${successSources}, chyby: ${failed.length}.`
-    );
+    renderSourceSettings();
+    setSyncStatus(`Synchronizace bez validních dat. Úspěšné zdroje: ${successSources}, chyby: ${failed.length}.`);
     return;
   }
 
@@ -540,6 +462,11 @@ async function fetchAllSources() {
   saveRecords();
   populateFilters();
   renderDashboard();
+  renderSourceSettings();
+
+  syncMeta = { mode: 'live', lastSyncAt: nowIso() };
+  saveSyncMeta();
+  updateSyncIndicator();
 
   let message = `Synchronizace hotová: ${records.length} záznamů z ${successSources} zdrojů.`;
   if (invalidTotal) message += ` Vyřazeno ${invalidTotal} nevalidních.`;
@@ -553,9 +480,7 @@ function applyRefreshTimer() {
     setSyncStatus('Interval musí být alespoň 1 minuta.');
     return;
   }
-
   localStorage.setItem(intervalStorageKey, String(minutes));
-
   if (timerId) clearInterval(timerId);
   timerId = setInterval(fetchAllSources, minutes * 60 * 1000);
 }
@@ -589,18 +514,25 @@ syncNow.addEventListener('click', fetchAllSources);
 addOrUpdateSource.addEventListener('click', upsertSourceFromEditor);
 refreshMinutes.addEventListener('change', applyRefreshTimer);
 
+sourceRows.addEventListener('click', (event) => {
+  const button = event.target.closest('[data-action="sync-one"]');
+  if (!button) return;
+  const id = button.getAttribute('data-id');
+  if (id) syncOneSource(id);
+});
+
 resetToDemo.addEventListener('click', () => {
   records = [...baseRecords];
   localStorage.removeItem(dataStorageKey);
   populateFilters();
   resetFiltersAll();
+  syncMeta = { mode: 'demo', lastSyncAt: nowIso() };
+  saveSyncMeta();
+  updateSyncIndicator();
   setSyncStatus('Použita lokální demo data.');
 });
 
-[channelFilter, countryFilter, dateFrom, dateTo].forEach((el) => {
-  el.addEventListener('change', renderDashboard);
-});
-
+[channelFilter, countryFilter, dateFrom, dateTo].forEach((el) => el.addEventListener('change', renderDashboard));
 resetFilters.addEventListener('click', resetFiltersAll);
 
 bootstrapSettings();
@@ -613,5 +545,6 @@ renderSourceSettings();
 renderApiAvailability();
 populateFilters();
 renderDashboard();
+updateSyncIndicator();
 applyRefreshTimer();
 fetchAllSources();

@@ -10,6 +10,8 @@ Jednoduchá webová aplikace pro centralizovaný přehled zákaznických hodnoce
 - Automatický import dat přes API bez ručního uploadu souborů.
 - Konfigurace **každého zdroje zvlášť** (URL exportu, auth token, parser, enabled).
 - Periodická synchronizace dat (nastavitelný interval v minutách).
+- Indikátor zdroje dat (Live API vs Demo) a čas poslední úspěšné synchronizace.
+- Tlačítko synchronizace pro každý jednotlivý kanál (bez načítání všeho).
 
 ## Spuštění
 
@@ -33,6 +35,8 @@ V sekci **Nastavení API podle zdroje** má každý kanál vlastní konfiguraci:
 - `Aktivní` – zdroj se bude/nebo nebude periodicky synchronizovat.
 
 Po kliknutí na **Synchronizovat vše nyní** aplikace stáhne data ze všech aktivních zdrojů a sloučí je do dashboardu.
+
+U každého kanálu je navíc tlačítko **Sync kanál** pro refresh jen jednoho zdroje.
 
 Nové zdroje můžete přidat přímo formulářem **Přidat / upravit vybraný kanál** (kanál, země, URL, token, parser, aktivace).
 
@@ -68,3 +72,11 @@ https://www.heureka.cz/direct/dotaznik/export-review.php?key=3d1c95786eee7013da7
 ```
 
 Použijte parser `heureka-xml`. Aplikace mapuje `unix_timestamp`/`ordered` na datum, `total_rating` na `score` a každou recenzi počítá jako `reviews: 1`.
+
+
+## Ukládání XML a databáze
+
+- Stažené XML soubory se samostatně neukládají.
+- XML/JSON odpověď se po načtení hned parsuje na normalizované záznamy.
+- Tyto záznamy se ukládají pouze do `localStorage` v prohlížeči (`bruderland-review-data`).
+- V této verzi není žádná serverová databáze.
