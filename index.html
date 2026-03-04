@@ -30,6 +30,38 @@
           <button id="saveSources" class="secondary">Uložit nastavení zdrojů</button>
         </div>
 
+
+        <div class="source-editor">
+          <h3>Přidat / upravit vybraný kanál</h3>
+          <div class="source-editor-grid">
+            <label>
+              Kanál
+              <input id="editorChannel" placeholder="např. heureka.cz" />
+            </label>
+            <label>
+              Země
+              <input id="editorCountry" maxlength="2" placeholder="CZ" />
+            </label>
+            <label>
+              URL pro stahování dat
+              <input id="editorEndpoint" placeholder="https://..." />
+            </label>
+            <label>
+              Auth token
+              <input id="editorToken" placeholder="Bearer ..." />
+            </label>
+            <label>
+              Parser
+              <select id="editorParser"></select>
+            </label>
+            <label class="inline-check">
+              <input id="editorEnabled" type="checkbox" checked />
+              Aktivní zdroj
+            </label>
+            <button id="addOrUpdateSource" type="button">Uložit vybraný kanál</button>
+          </div>
+        </div>
+
         <div class="table-scroll">
           <table>
             <thead>

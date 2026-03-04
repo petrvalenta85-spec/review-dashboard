@@ -136,6 +136,14 @@ const saveSources = document.querySelector('#saveSources');
 const syncStatus = document.querySelector('#syncStatus');
 const apiAvailabilityRows = document.querySelector('#apiAvailabilityRows');
 
+const editorChannel = document.querySelector('#editorChannel');
+const editorCountry = document.querySelector('#editorCountry');
+const editorEndpoint = document.querySelector('#editorEndpoint');
+const editorToken = document.querySelector('#editorToken');
+const editorParser = document.querySelector('#editorParser');
+const editorEnabled = document.querySelector('#editorEnabled');
+const addOrUpdateSource = document.querySelector('#addOrUpdateSource');
+
 let records = loadRecords();
 let sourceConfigs = loadSourceConfigs();
 let timerId = null;
@@ -237,7 +245,7 @@ function loadSourceConfigs() {
 
   try {
     const parsed = JSON.parse(saved);
-    if (!Array.isArray(parsed)) return [...defaultSources];
+    if (!Array.isArray(parsed) || parsed.length === 0) return [...defaultSources];
     const knownIds = new Set(parsed.map((item) => item.id));
     const mergedWithNewDefaults = [...parsed];
     defaultSources.forEach((source) => {
@@ -287,6 +295,11 @@ function createOption(select, value, label) {
   option.textContent = label;
   select.append(option);
 }
+
+function sourceId(channel, country) {
+  return `${channel}-${country}`.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+}
+
 
 function populateFilters() {
   const selectedCountry = countryFilter.value || 'ALL';
@@ -368,6 +381,11 @@ function renderApiAvailability() {
 function renderSourceSettings() {
   sourceRows.innerHTML = '';
 
+  if (!sourceConfigs.length) {
+    sourceRows.innerHTML = '<tr><td colspan="6">Zatím není přidaný žádný zdroj.</td></tr>';
+    return;
+  }
+
   sourceConfigs.forEach((source) => {
     const row = document.createElement('tr');
 
@@ -393,6 +411,49 @@ function renderSourceSettings() {
 
     sourceRows.append(row);
   });
+}
+
+function renderEditorParsers() {
+  editorParser.innerHTML = '';
+  parserOptions.forEach((opt) => {
+    const option = document.createElement('option');
+    option.value = opt.value;
+    option.textContent = opt.label;
+    editorParser.append(option);
+  });
+}
+
+function upsertSourceFromEditor() {
+  const channel = editorChannel.value.trim().toLowerCase();
+  const country = editorCountry.value.trim().toUpperCase();
+  const endpoint = editorEndpoint.value.trim();
+
+  if (!channel || !country || !endpoint) {
+    setSyncStatus('Pro uložení kanálu vyplňte kanál, zemi a URL.');
+    return;
+  }
+
+  const id = sourceId(channel, country);
+  const next = {
+    id,
+    channel,
+    country,
+    endpoint,
+    token: editorToken.value.trim(),
+    parser: editorParser.value,
+    enabled: editorEnabled.checked
+  };
+
+  const existingIndex = sourceConfigs.findIndex((source) => source.id === id);
+  if (existingIndex >= 0) {
+    sourceConfigs[existingIndex] = next;
+  } else {
+    sourceConfigs.push(next);
+  }
+
+  saveSourceConfigs();
+  renderSourceSettings();
+  setSyncStatus(`Kanál ${channel} (${country}) uložen.`);
 }
 
 function setSyncStatus(message) {
@@ -525,6 +586,7 @@ saveSources.addEventListener('click', () => {
 });
 
 syncNow.addEventListener('click', fetchAllSources);
+addOrUpdateSource.addEventListener('click', upsertSourceFromEditor);
 refreshMinutes.addEventListener('change', applyRefreshTimer);
 
 resetToDemo.addEventListener('click', () => {
@@ -542,6 +604,11 @@ resetToDemo.addEventListener('click', () => {
 resetFilters.addEventListener('click', resetFiltersAll);
 
 bootstrapSettings();
+renderEditorParsers();
+editorParser.value = 'heureka-xml';
+editorChannel.value = 'heureka.cz';
+editorCountry.value = 'CZ';
+editorEndpoint.value = 'https://www.heureka.cz/direct/dotaznik/export-review.php?key=3d1c95786eee7013da761a88cad80c60';
 renderSourceSettings();
 renderApiAvailability();
 populateFilters();

@@ -34,6 +34,8 @@ V sekci **Nastavení API podle zdroje** má každý kanál vlastní konfiguraci:
 
 Po kliknutí na **Synchronizovat vše nyní** aplikace stáhne data ze všech aktivních zdrojů a sloučí je do dashboardu.
 
+Nové zdroje můžete přidat přímo formulářem **Přidat / upravit vybraný kanál** (kanál, země, URL, token, parser, aktivace).
+
 ## Očekávaný normalizovaný záznam
 
 ```json
