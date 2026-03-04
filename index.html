@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="cs">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bruderland Review Dashboard</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header>
+      <h1>Bruderland · Dashboard zákaznických hodnocení</h1>
+      <p>
+        Automatický přehled metrik z kanálů Heureka, Arukereso, Ceneo, Compari, Trusted Shops a Idealo.
+      </p>
+    </header>
+
+    <main>
+      <section class="panel api-sync">
+        <h2>Automatický API import</h2>
+        <p>
+          Dashboard načítá data automaticky z centrálního endpointu (typicky váš interní ETL/API gateway).
+        </p>
+        <div class="api-controls">
+          <label>
+            API endpoint
+            <input id="apiEndpoint" value="/api/reviews" />
+          </label>
+          <label>
+            Interval (min)
+            <input id="refreshMinutes" type="number" min="1" value="5" />
+          </label>
+          <button id="syncNow">Synchronizovat nyní</button>
+          <button id="resetToDemo" class="secondary">Použít demo data</button>
+        </div>
+        <pre id="syncStatus" aria-live="polite"></pre>
+      </section>
+
+      <section class="panel filters">
+        <h2>Filtry</h2>
+        <div class="filter-grid">
+          <label>
+            Od
+            <input id="dateFrom" type="date" />
+          </label>
+          <label>
+            Do
+            <input id="dateTo" type="date" />
+          </label>
+          <label>
+            Země
+            <select id="countryFilter"></select>
+          </label>
+          <label>
+            Kanál
+            <select id="channelFilter"></select>
+          </label>
+          <button id="resetFilters" class="secondary">Reset filtrů</button>
+        </div>
+      </section>
+
+      <section class="panel metrics">
+        <h2>Souhrn</h2>
+        <div class="cards" id="summaryCards"></div>
+      </section>
+
+      <section class="panel tables">
+        <h2>Vyhodnocení</h2>
+        <div class="table-grid">
+          <article>
+            <h3>Podle zemí</h3>
+            <table>
+              <thead>
+                <tr>
+                  <th>Země</th>
+                  <th>Průměrné hodnocení</th>
+                  <th>Počet recenzí</th>
+                </tr>
+              </thead>
+              <tbody id="countryRows"></tbody>
+            </table>
+          </article>
+
+          <article>
+            <h3>Podle kanálů</h3>
+            <table>
+              <thead>
+                <tr>
+                  <th>Kanál</th>
+                  <th>Průměrné hodnocení</th>
+                  <th>Počet recenzí</th>
+                </tr>
+              </thead>
+              <tbody id="channelRows"></tbody>
+            </table>
+          </article>
+        </div>
+      </section>
+
+      <section class="panel channels-api">
+        <h2>Dostupnost API podle kanálu</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Kanál</th>
+              <th>Stav API</th>
+              <th>Poznámka</th>
+            </tr>
+          </thead>
+          <tbody id="apiAvailabilityRows"></tbody>
+        </table>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
