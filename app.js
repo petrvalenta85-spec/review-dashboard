@@ -6,46 +6,116 @@ const baseRecords = [
   { date: '2026-01-25', country: 'RO', channel: 'compari', score: 4.0, reviews: 128 },
   { date: '2026-02-02', country: 'DE', channel: 'trustedshop', score: 4.7, reviews: 460 },
   { date: '2026-02-05', country: 'DE', channel: 'idealo.de', score: 4.4, reviews: 255 },
-  { date: '2026-02-11', country: 'AT', channel: 'idealo.at', score: 4.2, reviews: 174 },
-  { date: '2026-02-17', country: 'CZ', channel: 'heureka.cz', score: 4.8, reviews: 289 },
-  { date: '2026-02-23', country: 'SK', channel: 'heureka.sk', score: 4.6, reviews: 201 }
+  { date: '2026-02-11', country: 'AT', channel: 'idealo.at', score: 4.2, reviews: 174 }
 ];
 
 const apiAvailability = [
   {
     channel: 'heureka.cz / heureka.sk',
     status: 'Partnerské API',
-    note: 'XML feed + ověřeno zákazníky; API přístup je obvykle partnerský po schválení.'
+    note: 'Merchant/partner integrace po schválení.'
   },
   {
-    channel: 'arukereso',
+    channel: 'arukereso / compari',
     status: 'Neveřejné / partner-only',
-    note: 'Veřejná recenzní API dokumentace není běžně dostupná, řeší se individuálně.'
+    note: 'Běžně se řeší obchodně, ne veřejným API klíčem.'
   },
-  {
-    channel: 'ceneo',
-    status: 'Partnerské API',
-    note: 'Integrace bývá přes merchant/partnerské rozhraní (po registraci).' 
-  },
-  {
-    channel: 'compari',
-    status: 'Partnerské API',
-    note: 'Podobně jako Árukereső, napojení je typicky obchodní/partnerské.'
-  },
+  { channel: 'ceneo', status: 'Partnerské API', note: 'Merchant napojení po registraci.' },
   {
     channel: 'Trusted Shops',
     status: 'Ano',
-    note: 'Trusted Shops poskytuje API endpointy (Business/Trustbadge ekosystém).'
+    note: 'Dostupná API v rámci Trusted Shops ekosystému.'
   },
   {
     channel: 'idealo.de / idealo.at',
     status: 'Partnerské API',
-    note: 'Merchant Center a feed/API přístup obvykle po onboarding procesu.'
+    note: 'Přístup po merchant onboarding procesu.'
   }
 ];
 
+const defaultSources = [
+  {
+    id: 'heureka-cz',
+    channel: 'heureka.cz',
+    country: 'CZ',
+    endpoint: 'https://api.example.com/heureka-cz/reviews',
+    token: '',
+    parser: 'standard-array',
+    enabled: true
+  },
+  {
+    id: 'heureka-sk',
+    channel: 'heureka.sk',
+    country: 'SK',
+    endpoint: 'https://api.example.com/heureka-sk/reviews',
+    token: '',
+    parser: 'wrapped-reviews',
+    enabled: true
+  },
+  {
+    id: 'arukereso',
+    channel: 'arukereso',
+    country: 'HU',
+    endpoint: 'https://api.example.com/arukereso/ratings',
+    token: '',
+    parser: 'items-v2',
+    enabled: false
+  },
+  {
+    id: 'ceneo',
+    channel: 'ceneo',
+    country: 'PL',
+    endpoint: 'https://api.example.com/ceneo/reviews',
+    token: '',
+    parser: 'standard-array',
+    enabled: false
+  },
+  {
+    id: 'compari',
+    channel: 'compari',
+    country: 'RO',
+    endpoint: 'https://api.example.com/compari/ratings',
+    token: '',
+    parser: 'items-v2',
+    enabled: false
+  },
+  {
+    id: 'trusted-shops',
+    channel: 'trustedshop',
+    country: 'DE',
+    endpoint: 'https://api.example.com/trusted-shops/reviews',
+    token: '',
+    parser: 'wrapped-reviews',
+    enabled: false
+  },
+  {
+    id: 'idealo-de',
+    channel: 'idealo.de',
+    country: 'DE',
+    endpoint: 'https://api.example.com/idealo-de/reviews',
+    token: '',
+    parser: 'standard-array',
+    enabled: false
+  },
+  {
+    id: 'idealo-at',
+    channel: 'idealo.at',
+    country: 'AT',
+    endpoint: 'https://api.example.com/idealo-at/reviews',
+    token: '',
+    parser: 'standard-array',
+    enabled: false
+  }
+];
+
+const parserOptions = [
+  { value: 'standard-array', label: 'standard-array ([])' },
+  { value: 'wrapped-reviews', label: 'wrapped-reviews ({ reviews: [] })' },
+  { value: 'items-v2', label: 'items-v2 ({ items: [] })' }
+];
+
 const dataStorageKey = 'bruderland-review-data';
-const endpointStorageKey = 'bruderland-api-endpoint';
+const sourceStorageKey = 'bruderland-source-configs';
 const intervalStorageKey = 'bruderland-api-refresh-minutes';
 
 const dateFrom = document.querySelector('#dateFrom');
@@ -57,14 +127,16 @@ const countryRows = document.querySelector('#countryRows');
 const channelRows = document.querySelector('#channelRows');
 const resetFilters = document.querySelector('#resetFilters');
 
-const apiEndpoint = document.querySelector('#apiEndpoint');
+const sourceRows = document.querySelector('#sourceRows');
 const refreshMinutes = document.querySelector('#refreshMinutes');
 const syncNow = document.querySelector('#syncNow');
 const resetToDemo = document.querySelector('#resetToDemo');
+const saveSources = document.querySelector('#saveSources');
 const syncStatus = document.querySelector('#syncStatus');
 const apiAvailabilityRows = document.querySelector('#apiAvailabilityRows');
 
 let records = loadRecords();
+let sourceConfigs = loadSourceConfigs();
 let timerId = null;
 
 function isValidRecord(record) {
@@ -77,23 +149,46 @@ function isValidRecord(record) {
   return validDate && validCountry && validChannel && validScore && validReviews;
 }
 
-function normalizeRecord(record) {
+function normalizeRecord(record, fallback) {
   return {
     date: record.date,
-    country: record.country.trim().toUpperCase(),
-    channel: record.channel.trim().toLowerCase(),
+    country: (record.country || fallback.country).trim().toUpperCase(),
+    channel: (record.channel || fallback.channel).trim().toLowerCase(),
     score: Number(record.score),
     reviews: Number(record.reviews)
   };
 }
 
+function parseByType(payload, parser, source) {
+  if (parser === 'standard-array' && Array.isArray(payload)) {
+    return payload;
+  }
+
+  if (parser === 'wrapped-reviews' && payload && Array.isArray(payload.reviews)) {
+    return payload.reviews;
+  }
+
+  if (parser === 'items-v2' && payload && Array.isArray(payload.items)) {
+    return payload.items.map((item) => ({
+      date: item.review_date,
+      country: item.country_code,
+      channel: item.source,
+      score: item.rating,
+      reviews: item.count
+    }));
+  }
+
+  throw new Error(`Nepodporovaný formát odpovědi pro parser ${parser}`);
+}
+
 function loadRecords() {
   const saved = localStorage.getItem(dataStorageKey);
   if (!saved) return [...baseRecords];
+
   try {
     const parsed = JSON.parse(saved);
     if (!Array.isArray(parsed)) return [...baseRecords];
-    const valid = parsed.filter(isValidRecord).map(normalizeRecord);
+    const valid = parsed.filter(isValidRecord).map((record) => normalizeRecord(record, record));
     return valid.length ? valid : [...baseRecords];
   } catch {
     return [...baseRecords];
@@ -102,6 +197,28 @@ function loadRecords() {
 
 function saveRecords() {
   localStorage.setItem(dataStorageKey, JSON.stringify(records));
+}
+
+function loadSourceConfigs() {
+  const saved = localStorage.getItem(sourceStorageKey);
+  if (!saved) return [...defaultSources];
+
+  try {
+    const parsed = JSON.parse(saved);
+    if (!Array.isArray(parsed)) return [...defaultSources];
+    const knownIds = new Set(parsed.map((item) => item.id));
+    const mergedWithNewDefaults = [...parsed];
+    defaultSources.forEach((source) => {
+      if (!knownIds.has(source.id)) mergedWithNewDefaults.push(source);
+    });
+    return mergedWithNewDefaults;
+  } catch {
+    return [...defaultSources];
+  }
+}
+
+function saveSourceConfigs() {
+  localStorage.setItem(sourceStorageKey, JSON.stringify(sourceConfigs));
 }
 
 function weightedAverage(inputRecords) {
@@ -124,6 +241,7 @@ function groupBy(inputRecords, key) {
     target.push(record);
     groups.set(record[key], target);
   });
+
   return [...groups.entries()].map(([name, items]) => ({
     name,
     avg: weightedAverage(items),
@@ -149,6 +267,7 @@ function populateFilters() {
 
   const countries = [...new Set(records.map((entry) => entry.country))].sort();
   const channels = [...new Set(records.map((entry) => entry.channel))].sort();
+
   countries.forEach((country) => createOption(countryFilter, country, country));
   channels.forEach((channel) => createOption(channelFilter, channel, channel));
 
@@ -186,6 +305,7 @@ function renderSummary(inputRecords) {
 
 function renderTable(rowsNode, rows) {
   rowsNode.innerHTML = '';
+
   if (!rows.length) {
     rowsNode.innerHTML = '<tr><td colspan="3">Žádná data pro zvolené filtry.</td></tr>';
     return;
@@ -213,55 +333,125 @@ function renderApiAvailability() {
   });
 }
 
-function renderDashboard() {
-  const selectedRecords = filteredRecords();
-  renderSummary(selectedRecords);
-  renderTable(countryRows, groupBy(selectedRecords, 'country'));
-  renderTable(channelRows, groupBy(selectedRecords, 'channel'));
+function renderSourceSettings() {
+  sourceRows.innerHTML = '';
+
+  sourceConfigs.forEach((source) => {
+    const row = document.createElement('tr');
+
+    const parserSelect = parserOptions
+      .map(
+        (opt) =>
+          `<option value="${opt.value}" ${opt.value === source.parser ? 'selected' : ''}>${opt.label}</option>`
+      )
+      .join('');
+
+    row.innerHTML = `
+      <td><input type="checkbox" data-field="enabled" data-id="${source.id}" ${source.enabled ? 'checked' : ''} /></td>
+      <td>${source.channel}</td>
+      <td>${source.country}</td>
+      <td><input data-field="endpoint" data-id="${source.id}" value="${source.endpoint}" /></td>
+      <td><input data-field="token" data-id="${source.id}" value="${source.token}" placeholder="Bearer ..." /></td>
+      <td>
+        <select data-field="parser" data-id="${source.id}">
+          ${parserSelect}
+        </select>
+      </td>
+    `;
+
+    sourceRows.append(row);
+  });
 }
 
 function setSyncStatus(message) {
   syncStatus.textContent = `${new Date().toLocaleTimeString('cs-CZ')} · ${message}`;
 }
 
-async function fetchApiData() {
-  const endpoint = apiEndpoint.value.trim();
-  if (!endpoint) {
-    setSyncStatus('Chybí API endpoint.');
+function updateSourceConfigFromUI() {
+  sourceConfigs = sourceConfigs.map((source) => {
+    const enabledEl = sourceRows.querySelector(`[data-field="enabled"][data-id="${source.id}"]`);
+    const endpointEl = sourceRows.querySelector(`[data-field="endpoint"][data-id="${source.id}"]`);
+    const tokenEl = sourceRows.querySelector(`[data-field="token"][data-id="${source.id}"]`);
+    const parserEl = sourceRows.querySelector(`[data-field="parser"][data-id="${source.id}"]`);
+
+    return {
+      ...source,
+      enabled: Boolean(enabledEl?.checked),
+      endpoint: endpointEl?.value.trim() || '',
+      token: tokenEl?.value.trim() || '',
+      parser: parserEl?.value || source.parser
+    };
+  });
+}
+
+async function fetchSource(source) {
+  if (!source.enabled || !source.endpoint) {
+    return { source: source.channel, records: [], invalid: 0, skipped: true };
+  }
+
+  const headers = { Accept: 'application/json' };
+  if (source.token) headers.Authorization = source.token;
+
+  const response = await fetch(source.endpoint, { headers });
+  if (!response.ok) {
+    throw new Error(`${source.channel}: ${response.status} ${response.statusText}`);
+  }
+
+  const payload = await response.json();
+  const extracted = parseByType(payload, source.parser, source);
+  const normalized = extracted.map((record) => normalizeRecord(record, source));
+  const valid = normalized.filter(isValidRecord);
+
+  return {
+    source: source.channel,
+    records: valid,
+    invalid: normalized.length - valid.length,
+    skipped: false
+  };
+}
+
+async function fetchAllSources() {
+  updateSourceConfigFromUI();
+  saveSourceConfigs();
+
+  const enabledCount = sourceConfigs.filter((source) => source.enabled).length;
+  if (!enabledCount) {
+    setSyncStatus('Není aktivní žádný zdroj. Zapněte aspoň jeden kanál.');
     return;
   }
 
-  try {
-    const response = await fetch(endpoint, { headers: { Accept: 'application/json' } });
-    if (!response.ok) {
-      setSyncStatus(`API chyba ${response.status}: ${response.statusText}`);
+  const settled = await Promise.allSettled(sourceConfigs.map((source) => fetchSource(source)));
+  const merged = [];
+  let invalidTotal = 0;
+  const failed = [];
+  let successSources = 0;
+
+  settled.forEach((result) => {
+    if (result.status === 'fulfilled') {
+      if (!result.value.skipped) successSources += 1;
+      invalidTotal += result.value.invalid;
+      merged.push(...result.value.records);
       return;
     }
+    failed.push(result.reason?.message || 'Neznámá chyba');
+  });
 
-    const payload = await response.json();
-    if (!Array.isArray(payload)) {
-      setSyncStatus('API musí vracet JSON pole záznamů.');
-      return;
-    }
-
-    const valid = payload.filter(isValidRecord).map(normalizeRecord);
-    const invalid = payload.length - valid.length;
-
-    if (!valid.length) {
-      setSyncStatus('API nevrátilo žádné validní záznamy.');
-      return;
-    }
-
-    records = valid;
-    saveRecords();
-    populateFilters();
-    renderDashboard();
+  if (!merged.length) {
     setSyncStatus(
-      `Synchronizace hotová: ${valid.length} záznamů${invalid ? `, vyřazeno ${invalid}.` : '.'}`
+      `Synchronizace bez validních dat. Úspěšné zdroje: ${successSources}, chyby: ${failed.length}.`
     );
-  } catch {
-    setSyncStatus('Nepodařilo se načíst API (síť/CORS/autentizace).');
+    return;
   }
+
+  records = merged;
+  saveRecords();
+  populateFilters();
+  renderDashboard();
+
+  let message = `Synchronizace hotová: ${records.length} záznamů z ${successSources} zdrojů.`;
+  if (invalidTotal) message += ` Vyřazeno ${invalidTotal} nevalidních.`;
+  if (failed.length) message += ` Chyby: ${failed.join(' | ')}.`;
+  setSyncStatus(message);
 }
 
 function applyRefreshTimer() {
@@ -274,7 +464,14 @@ function applyRefreshTimer() {
   localStorage.setItem(intervalStorageKey, String(minutes));
 
   if (timerId) clearInterval(timerId);
-  timerId = setInterval(fetchApiData, minutes * 60 * 1000);
+  timerId = setInterval(fetchAllSources, minutes * 60 * 1000);
+}
+
+function renderDashboard() {
+  const selectedRecords = filteredRecords();
+  renderSummary(selectedRecords);
+  renderTable(countryRows, groupBy(selectedRecords, 'country'));
+  renderTable(channelRows, groupBy(selectedRecords, 'channel'));
 }
 
 function resetFiltersAll() {
@@ -285,17 +482,19 @@ function resetFiltersAll() {
   renderDashboard();
 }
 
-function bootstrapApiSettings() {
-  apiEndpoint.value = localStorage.getItem(endpointStorageKey) || '/api/reviews';
+function bootstrapSettings() {
   refreshMinutes.value = localStorage.getItem(intervalStorageKey) || '5';
 }
 
-apiEndpoint.addEventListener('change', () => {
-  localStorage.setItem(endpointStorageKey, apiEndpoint.value.trim());
+saveSources.addEventListener('click', () => {
+  updateSourceConfigFromUI();
+  saveSourceConfigs();
+  setSyncStatus('Nastavení zdrojů uloženo.');
 });
 
+syncNow.addEventListener('click', fetchAllSources);
 refreshMinutes.addEventListener('change', applyRefreshTimer);
-syncNow.addEventListener('click', fetchApiData);
+
 resetToDemo.addEventListener('click', () => {
   records = [...baseRecords];
   localStorage.removeItem(dataStorageKey);
@@ -307,11 +506,13 @@ resetToDemo.addEventListener('click', () => {
 [channelFilter, countryFilter, dateFrom, dateTo].forEach((el) => {
   el.addEventListener('change', renderDashboard);
 });
+
 resetFilters.addEventListener('click', resetFiltersAll);
 
-bootstrapApiSettings();
-populateFilters();
+bootstrapSettings();
+renderSourceSettings();
 renderApiAvailability();
+populateFilters();
 renderDashboard();
 applyRefreshTimer();
-fetchApiData();
+fetchAllSources();

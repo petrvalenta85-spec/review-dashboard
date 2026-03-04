@@ -19,7 +19,7 @@ header {
 }
 
 main {
-  max-width: 1100px;
+  max-width: 1200px;
   margin: 1.5rem auto;
   padding: 0 1rem 2rem;
   display: grid;
@@ -34,7 +34,7 @@ main {
 }
 
 .filter-grid,
-.api-controls {
+.sync-toolbar {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 0.75rem;
@@ -90,6 +90,10 @@ button.secondary {
   gap: 1rem;
 }
 
+.table-scroll {
+  overflow-x: auto;
+}
+
 table {
   width: 100%;
   border-collapse: collapse;
@@ -99,8 +103,14 @@ th,
 td {
   text-align: left;
   border-bottom: 1px solid #e5e7eb;
-  padding: 0.45rem 0;
+  padding: 0.45rem 0.25rem;
   vertical-align: top;
+}
+
+#sourceRows input,
+#sourceRows select {
+  min-width: 140px;
+  width: 100%;
 }
 
 #syncStatus {

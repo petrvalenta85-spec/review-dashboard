@@ -9,29 +9,43 @@
   <body>
     <header>
       <h1>Bruderland · Dashboard zákaznických hodnocení</h1>
-      <p>
-        Automatický přehled metrik z kanálů Heureka, Arukereso, Ceneo, Compari, Trusted Shops a Idealo.
-      </p>
+      <p>Automatický přehled metrik napojený na samostatná API jednotlivých zdrojů.</p>
     </header>
 
     <main>
       <section class="panel api-sync">
-        <h2>Automatický API import</h2>
+        <h2>Nastavení API podle zdroje</h2>
         <p>
-          Dashboard načítá data automaticky z centrálního endpointu (typicky váš interní ETL/API gateway).
+          Každý kanál má vlastní endpoint, autorizaci a parser odpovědi. Můžete zapnout jen zdroje,
+          které máte aktuálně integrované.
         </p>
-        <div class="api-controls">
+
+        <div class="sync-toolbar">
           <label>
-            API endpoint
-            <input id="apiEndpoint" value="/api/reviews" />
-          </label>
-          <label>
-            Interval (min)
+            Interval synchronizace (min)
             <input id="refreshMinutes" type="number" min="1" value="5" />
           </label>
-          <button id="syncNow">Synchronizovat nyní</button>
+          <button id="syncNow">Synchronizovat vše nyní</button>
           <button id="resetToDemo" class="secondary">Použít demo data</button>
+          <button id="saveSources" class="secondary">Uložit nastavení zdrojů</button>
         </div>
+
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Aktivní</th>
+                <th>Zdroj</th>
+                <th>Země</th>
+                <th>Endpoint</th>
+                <th>Auth token (volitelně)</th>
+                <th>Parser</th>
+              </tr>
+            </thead>
+            <tbody id="sourceRows"></tbody>
+          </table>
+        </div>
+
         <pre id="syncStatus" aria-live="polite"></pre>
       </section>
 

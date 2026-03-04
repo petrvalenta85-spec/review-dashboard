@@ -7,9 +7,9 @@ Jednoduchá webová aplikace pro centralizovaný přehled zákaznických hodnoce
 - Agregace metrik na úrovni celku, zemí i jednotlivých kanálů.
 - Filtrování dle období (`od` / `do`), země a kanálu.
 - Přehledné souhrnné KPI karty.
-- Automatický import dat přes API endpoint (bez ručního nahrávání souborů).
+- Automatický import dat přes API bez ručního uploadu souborů.
+- Konfigurace **každého zdroje zvlášť** (endpoint, auth token, parser, enabled).
 - Periodická synchronizace dat (nastavitelný interval v minutách).
-- Přehled dostupnosti API napojení pro jednotlivé kanály.
 
 ## Spuštění
 
@@ -19,33 +19,38 @@ python3 -m http.server 8000
 
 Aplikace bude dostupná na `http://localhost:8000`.
 
-## API režim (bez ručního uploadu)
+## Jak funguje import pro různé zdroje
 
-Dashboard očekává endpoint, který vrací JSON pole záznamů ve tvaru:
+V sekci **Nastavení API podle zdroje** má každý kanál vlastní konfiguraci:
+
+- `Endpoint` – URL konkrétního API pro daný zdroj.
+- `Auth token` – volitelně (odesílá se jako `Authorization` header).
+- `Parser` – typ odpovědi API:
+  - `standard-array` → API vrací přímo `[]` záznamů.
+  - `wrapped-reviews` → API vrací `{ "reviews": [] }`.
+  - `items-v2` → API vrací `{ "items": [] }` s mapováním polí.
+- `Aktivní` – zdroj se bude/nebo nebude periodicky synchronizovat.
+
+Po kliknutí na **Synchronizovat vše nyní** aplikace stáhne data ze všech aktivních zdrojů a sloučí je do dashboardu.
+
+## Očekávaný normalizovaný záznam
 
 ```json
-[
-  {
-    "date": "2026-03-01",
-    "country": "CZ",
-    "channel": "heureka.cz",
-    "score": 4.7,
-    "reviews": 123
-  }
-]
+{
+  "date": "2026-03-01",
+  "country": "CZ",
+  "channel": "heureka.cz",
+  "score": 4.7,
+  "reviews": 123
+}
 ```
-
-Výchozí endpoint je `/api/reviews` (lze přepsat v UI). Po startu proběhne automatická synchronizace a následně pravidelné obnovování dle nastaveného intervalu.
 
 ## Které kanály nabízejí API napojení?
 
-> Pozn.: U většiny srovnávačů jde o **partnerské/merchant API**, ne veřejné anonymní API.
+> Většinou jde o partnerské/merchant API, ne veřejné anonymní API.
 
-- **heureka.cz / heureka.sk**: partnerské rozhraní (merchant feed + ověřeno zákazníky, přístup po schválení).
-- **arukereso**: veřejná API dokumentace není běžně dostupná, obvykle individuální partner integrace.
-- **ceneo**: merchant/partnerské napojení (po registraci a schválení).
-- **compari**: partnerská integrace obdobně jako Árukereső.
-- **Trusted Shops**: dostupná API v rámci Trusted Shops ekosystému (business/trustbadge služby).
-- **idealo.de / idealo.at**: merchant onboarding + feed/API přístup typicky po schválení.
-
-Prakticky doporučuji používat **jeden interní integrační endpoint** (ETL/API gateway), který data z těchto zdrojů sjednotí do společného formátu pro dashboard.
+- **heureka.cz / heureka.sk**: partner API po schválení.
+- **arukereso / compari**: zpravidla partner-only přístup.
+- **ceneo**: merchant/partner integrace po registraci.
+- **Trusted Shops**: API dostupné v jejich business ekosystému.
+- **idealo.de / idealo.at**: partner onboarding + API/feed napojení.
