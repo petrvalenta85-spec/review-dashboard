@@ -332,6 +332,15 @@ function renderEditorParsers() {
   });
 }
 
+
+function formatSyncError(error, source) {
+  const raw = String(error?.message || error || 'Neznámá chyba');
+  if (/Failed to fetch|NetworkError|Load failed/i.test(raw)) {
+    return `${source.channel}: požadavek byl zablokován (typicky CORS/HTTPS/partner whitelist). Na localhostu je to časté – doporučen je backend proxy.`;
+  }
+  return `${source.channel}: ${raw}`;
+}
+
 function setSyncStatus(message) {
   syncStatus.textContent = `${new Date().toLocaleTimeString('cs-CZ')} · ${message}`;
 }
@@ -441,7 +450,7 @@ async function syncOneSource(sourceIdValue) {
 
     setSyncStatus(`Kanál ${source.channel} synchronizován: ${result.records.length} záznamů.`);
   } catch (error) {
-    setSyncStatus(`Sync kanálu ${source.channel} selhal: ${error.message}`);
+    setSyncStatus(`Sync kanálu selhal: ${formatSyncError(error, source)}`);
   }
 }
 
@@ -468,7 +477,7 @@ async function fetchAllSources() {
       merged.push(...result.value.records);
       touchSourceSync(enabledSources[index].id);
     } else {
-      failed.push(result.reason?.message || 'Neznámá chyba');
+      failed.push(formatSyncError(result.reason, enabledSources[index]));
     }
   });
 

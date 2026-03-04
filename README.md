@@ -86,3 +86,14 @@ Použijte parser `heureka-xml`. Aplikace mapuje `unix_timestamp`/`ordered` na da
 
 
 > Pro produkci je vhodné backend + databáze (např. PostgreSQL), aby byla historie bezpečně uložená centrálně a nebyla vázaná jen na `localStorage` konkrétního prohlížeče.
+
+
+## Proč sync tlačítka na localhostu někdy „nefungují“
+
+Pokud běží aplikace lokálně (`http://localhost:8000`) a volá cizí API/export URL, může browser požadavek zablokovat kvůli CORS, HTTPS politice nebo partner whitelistu IP/domény.
+
+Typický projev: status hlásí chybu `Failed to fetch` / blokaci požadavku.
+
+Doporučené řešení pro reálný provoz:
+- volat zdroje přes vlastní backend/proxy (server-to-server),
+- na frontendu číst už jen sjednocené interní API.
