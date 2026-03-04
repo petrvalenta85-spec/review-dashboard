@@ -176,3 +176,7 @@ td {
   min-height: 52px;
   white-space: pre-wrap;
 }
+
+.history-check {
+  white-space: nowrap;
+}

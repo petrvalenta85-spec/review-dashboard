@@ -12,6 +12,7 @@ Jednoduchá webová aplikace pro centralizovaný přehled zákaznických hodnoce
 - Periodická synchronizace dat (nastavitelný interval v minutách).
 - Indikátor zdroje dat (Live API vs Demo) a čas poslední úspěšné synchronizace.
 - Tlačítko synchronizace pro každý jednotlivý kanál (bez načítání všeho).
+- Volba **Zachovat historická data (append)** pro API, která vrací jen klouzavé časové okno.
 
 ## Spuštění
 
@@ -37,6 +38,8 @@ V sekci **Nastavení API podle zdroje** má každý kanál vlastní konfiguraci:
 Po kliknutí na **Synchronizovat vše nyní** aplikace stáhne data ze všech aktivních zdrojů a sloučí je do dashboardu.
 
 U každého kanálu je navíc tlačítko **Sync kanál** pro refresh jen jednoho zdroje.
+
+Pokud API vrací jen část historie (klouzavé okno), zapněte **Zachovat historická data (append)**. Aplikace pak při globálním synci nepřepisuje vše, ale mergeuje data podle klíče `kanál + země + datum`.
 
 Nové zdroje můžete přidat přímo formulářem **Přidat / upravit vybraný kanál** (kanál, země, URL, token, parser, aktivace).
 
@@ -80,3 +83,6 @@ Použijte parser `heureka-xml`. Aplikace mapuje `unix_timestamp`/`ordered` na da
 - XML/JSON odpověď se po načtení hned parsuje na normalizované záznamy.
 - Tyto záznamy se ukládají pouze do `localStorage` v prohlížeči (`bruderland-review-data`).
 - V této verzi není žádná serverová databáze.
+
+
+> Pro produkci je vhodné backend + databáze (např. PostgreSQL), aby byla historie bezpečně uložená centrálně a nebyla vázaná jen na `localStorage` konkrétního prohlížeče.

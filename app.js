@@ -43,6 +43,7 @@ const dataStorageKey = 'bruderland-review-data';
 const sourceStorageKey = 'bruderland-source-configs';
 const intervalStorageKey = 'bruderland-api-refresh-minutes';
 const syncMetaStorageKey = 'bruderland-sync-meta';
+const preserveHistoryStorageKey = 'bruderland-preserve-history';
 
 const dateFrom = document.querySelector('#dateFrom');
 const dateTo = document.querySelector('#dateTo');
@@ -55,6 +56,7 @@ const resetFilters = document.querySelector('#resetFilters');
 
 const sourceRows = document.querySelector('#sourceRows');
 const refreshMinutes = document.querySelector('#refreshMinutes');
+const preserveHistory = document.querySelector('#preserveHistory');
 const syncNow = document.querySelector('#syncNow');
 const resetToDemo = document.querySelector('#resetToDemo');
 const saveSources = document.querySelector('#saveSources');
@@ -397,6 +399,24 @@ function mergeChannelRecords(targetSource, newRecords) {
   records.push(...newRecords);
 }
 
+function mergeAllRecords(newRecords, keepHistory) {
+  if (!keepHistory) {
+    records = [...newRecords];
+    return;
+  }
+
+  const map = new Map();
+  records.forEach((record) => {
+    const key = `${record.channel}|${record.country}|${record.date}`;
+    map.set(key, record);
+  });
+  newRecords.forEach((record) => {
+    const key = `${record.channel}|${record.country}|${record.date}`;
+    map.set(key, record);
+  });
+  records = [...map.values()];
+}
+
 async function syncOneSource(sourceIdValue) {
   updateSourceConfigFromUI();
   saveSourceConfigs();
@@ -458,7 +478,7 @@ async function fetchAllSources() {
     return;
   }
 
-  records = merged;
+  mergeAllRecords(merged, preserveHistory.checked);
   saveRecords();
   populateFilters();
   renderDashboard();
@@ -502,17 +522,22 @@ function resetFiltersAll() {
 
 function bootstrapSettings() {
   refreshMinutes.value = localStorage.getItem(intervalStorageKey) || '5';
+  preserveHistory.checked = localStorage.getItem(preserveHistoryStorageKey) !== 'false';
 }
 
 saveSources.addEventListener('click', () => {
   updateSourceConfigFromUI();
   saveSourceConfigs();
+  localStorage.setItem(preserveHistoryStorageKey, String(preserveHistory.checked));
   setSyncStatus('Nastavení zdrojů uloženo.');
 });
 
 syncNow.addEventListener('click', fetchAllSources);
 addOrUpdateSource.addEventListener('click', upsertSourceFromEditor);
 refreshMinutes.addEventListener('change', applyRefreshTimer);
+preserveHistory.addEventListener('change', () => {
+  localStorage.setItem(preserveHistoryStorageKey, String(preserveHistory.checked));
+});
 
 sourceRows.addEventListener('click', (event) => {
   const button = event.target.closest('[data-action="sync-one"]');
