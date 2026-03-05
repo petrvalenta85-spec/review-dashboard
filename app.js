@@ -387,13 +387,27 @@ function upsertSourceFromEditor() {
   setSyncStatus(`Kanál ${channel} (${country}) uložen.`);
 }
 
+
+function resolveRequestUrl(source) {
+  const endpoint = source.endpoint.trim();
+  const localHostnames = new Set(['localhost', '127.0.0.1']);
+  const isLocal = localHostnames.has(window.location.hostname);
+  const isExternal = /^https?:\/\//i.test(endpoint);
+
+  if (isLocal && source.parser === 'heureka-xml' && isExternal) {
+    return `/proxy?url=${encodeURIComponent(endpoint)}`;
+  }
+
+  return endpoint;
+}
+
 async function fetchSource(source, { force = false } = {}) {
   if ((!source.enabled && !force) || !source.endpoint) return { source: source.channel, records: [], invalid: 0, skipped: true };
 
   const headers = { Accept: 'application/json' };
   if (source.token) headers.Authorization = source.token;
 
-  const response = await fetch(source.endpoint, { headers });
+  const response = await fetch(resolveRequestUrl(source), { headers });
   if (!response.ok) throw new Error(`${source.channel}: ${response.status} ${response.statusText}`);
 
   const payload = source.parser === 'heureka-xml' ? await response.text() : await response.json();

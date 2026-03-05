@@ -20,10 +20,13 @@ Jednoduchá webová aplikace pro centralizovaný přehled zákaznických hodnoce
 ## Spuštění
 
 ```bash
-python3 -m http.server 8000
+python3 dev_server.py
 ```
 
 Aplikace bude dostupná na `http://localhost:8000`.
+
+> `dev_server.py` je lokální server s proxy endpointem `/proxy`, aby na localhostu fungovalo načítání Heureka XML exportu bez CORS blokace v browseru.
+
 
 ## Jak funguje import pro různé zdroje
 
@@ -98,5 +101,5 @@ Pokud běží aplikace lokálně (`http://localhost:8000`) a volá cizí API/exp
 Typický projev: status hlásí chybu `Failed to fetch` / blokaci požadavku.
 
 Doporučené řešení pro reálný provoz:
-- volat zdroje přes vlastní backend/proxy (server-to-server),
-- na frontendu číst už jen sjednocené interní API.
+- pro lokální vývoj používat `dev_server.py`, který poskytuje proxy endpoint `/proxy` pro Heureka XML,
+- v produkci volat zdroje přes vlastní backend/proxy (server-to-server) a na frontendu číst sjednocené interní API.
