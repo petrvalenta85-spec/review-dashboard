@@ -2,6 +2,9 @@ name: Deploy to Firebase Hosting (Preview)
 
 on:
   pull_request:
+  push:
+    branches-ignore:
+      - main
 
 jobs:
   deploy_preview:
@@ -9,9 +12,21 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: FirebaseExtended/action-hosting-deploy@v0
+      # Když to spustí PR event, umí to napsat komentář do PR + expirovat kanál
+      - name: Deploy preview (PR)
+        if: github.event_name == 'pull_request'
+        uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: "${{ secrets.GITHUB_TOKEN }}"
           firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT_BRUDERLAND_REVIEW_DASHBOARD }}"
           projectId: bruderland-review-dashboard
           expires: 30d
+
+      # Když to spustí push do branche, udělá to “preview kanál” podle názvu branche
+      - name: Deploy preview (branch push)
+        if: github.event_name == 'push'
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT_BRUDERLAND_REVIEW_DASHBOARD }}"
+          projectId: bruderland-review-dashboard
+          channelId: preview-${{ github.ref_name }}
