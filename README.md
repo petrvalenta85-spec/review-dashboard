@@ -269,3 +269,42 @@ A pak otevřít URL, které vypíše Vite (typicky `http://localhost:5173`).
    - napojit ji na komponenty ve `src/` (React state + event handlery),
    - pro Heureka XML přidat backend proxy (např. Vite server proxy / Firebase Function / vlastní backend).
 3. Pokud chcete, připravím vám další krok: přesný seznam souborů ve `src/`, které upravit jako první.
+
+
+### Windows PowerShell chyba: `npm.ps1 cannot be loaded`
+
+Tato chyba není problém projektu, ale PowerShell bezpečnostní politiky (Execution Policy).
+
+#### Nejrychlejší bezpečné řešení jen pro aktuální okno
+
+Spusťte v PowerShellu:
+
+```powershell
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+npm install
+npm run dev
+```
+
+`-Scope Process` platí jen pro aktuální terminál (po zavření se vrátí původní stav).
+
+#### Alternativa bez změny policy (spustit `.cmd` variantu)
+
+```powershell
+npm.cmd install
+npm.cmd run dev
+```
+
+#### Doporučený dlouhodobý kompromis pro uživatele
+
+```powershell
+Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned
+```
+
+Potom znovu otevřete terminál a spusťte:
+
+```powershell
+npm install
+npm run dev
+```
+
+Pokud ve firmě spravuje policy IT oddělení (GPO), použijte `npm.cmd` nebo požádejte IT o povolení.
