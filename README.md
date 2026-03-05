@@ -361,3 +361,42 @@ npm.cmd run dev
 ```
 
 Pozn.: `./script.ps1` je běžné pro bash; v PowerShellu funguje standardně `.\script.ps1`.
+
+
+### Co dál po `npm.cmd run dev` (cíleně ke sloučení)
+
+Pokud UI běží, další krok je udělat **integrační commit** (ne jen spouštět server):
+
+```powershell
+# 1) ujistit se, že jste na integrační větvi
+git branch --show-current
+
+# 2) vytvořit pracovní branch pro merge krok
+git checkout -b feat/merge-sync-layer
+
+# 3) přenést logiku ze starého dashboard repa (ručně nebo cherry-pickem)
+# minimálně: parsování + sync + storage vrstva
+
+# 4) průběžně kontrolovat změny
+git status
+git diff
+
+# 5) otestovat build + lint + dev
+npm.cmd run build
+npm.cmd run dev
+
+# 6) commitnout integrační krok
+git add .
+git commit -m "Integrate review sync layer into lovable dashboard"
+
+# 7) pushnout branch a otevřít PR
+git push -u origin feat/merge-sync-layer
+```
+
+#### Doporučené pořadí sloučení (aby to šlo bez chaosu)
+
+1. Nejprve jen datový model a storage (`records`, `sources`, `sync meta`).
+2. Potom parsery (`heureka-xml`, `wrapped-reviews`, `items-v2`, `standard-array`).
+3. Nakonec UI napojení na komponenty (`src/`) a tlačítka sync.
+
+Takto vzniknou 2–3 menší PR místo jednoho velkého rizikového merge.
