@@ -245,3 +245,27 @@ Get-ChildItem
 ```
 
 Po spuštění serveru otevřete `http://localhost:8000` a pak můžeme udělat první cílený merge (např. jen data sync vrstvu).
+
+
+### Když jste v lovable projektu (React/Vite) a `dev_server.py` tam není
+
+Podle vašeho výpisu jste už v **jiném repozitáři** (lovable scaffold: `src/`, `public/`, `vite.config.ts`, `package.json`).
+V takovém projektu je správné spuštění jiné:
+
+```powershell
+npm install
+npm run dev
+```
+
+A pak otevřít URL, které vypíše Vite (typicky `http://localhost:5173`).
+
+`python3 dev_server.py` funguje jen v tomto původním repozitáři, kde soubor `dev_server.py` fyzicky existuje.
+
+#### Co udělat teď prakticky
+
+1. V lovable projektu spusťte `npm run dev` a ověřte, že UI běží.
+2. Potom integrujte sync vrstvu z původního dashboardu:
+   - přenést logiku z `app.js` (parsing/sync/storage),
+   - napojit ji na komponenty ve `src/` (React state + event handlery),
+   - pro Heureka XML přidat backend proxy (např. Vite server proxy / Firebase Function / vlastní backend).
+3. Pokud chcete, připravím vám další krok: přesný seznam souborů ve `src/`, které upravit jako první.
