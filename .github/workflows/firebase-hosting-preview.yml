@@ -1,32 +1,30 @@
 name: Deploy to Firebase Hosting (Preview)
 
 on:
-  pull_request:
-  push:
-    branches-ignore:
-      - main
+  pull_request_target:
+    types: [opened, synchronize, reopened]
 
 jobs:
   deploy_preview:
+    # bezpečnost: nespouštět pro forky (jen PR z téhož repa)
+    if: github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
+    permissions:
+      contents: read
+      pull-requests: write
 
-      # Když to spustí PR event, umí to napsat komentář do PR + expirovat kanál
-      - name: Deploy preview (PR)
-        if: github.event_name == 'pull_request'
+    steps:
+      - name: Checkout PR head
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Deploy preview channel
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: "${{ secrets.GITHUB_TOKEN }}"
           firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT_BRUDERLAND_REVIEW_DASHBOARD }}"
           projectId: bruderland-review-dashboard
+          channelId: pr-${{ github.event.pull_request.number }}
           expires: 30d
-
-      # Když to spustí push do branche, udělá to “preview kanál” podle názvu branche
-      - name: Deploy preview (branch push)
-        if: github.event_name == 'push'
-        uses: FirebaseExtended/action-hosting-deploy@v0
-        with:
-          firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT_BRUDERLAND_REVIEW_DASHBOARD }}"
-          projectId: bruderland-review-dashboard
-          channelId: preview-${{ github.ref_name }}
