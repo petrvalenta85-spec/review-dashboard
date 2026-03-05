@@ -533,12 +533,15 @@ function resetFiltersAll() {
 }
 
 function switchTab(tabId) {
-  tabPanes.forEach((pane) => pane.classList.toggle('hidden', pane.id != tabId));
-  tabButtons.forEach((button) => button.classList.toggle('active', button.dataset.tab === tabId));
-  localStorage.setItem(activeTabStorageKey, tabId);
+  const hasTarget = [...tabPanes].some((pane) => pane.id === tabId);
+  const resolved = hasTarget ? tabId : 'analyticsTab';
+  tabPanes.forEach((pane) => pane.classList.toggle('hidden', pane.id !== resolved));
+  tabButtons.forEach((button) => button.classList.toggle('active', button.dataset.tab === resolved));
+  localStorage.setItem(activeTabStorageKey, resolved);
 }
 
 function bootstrapTabs() {
+  if (!tabButtons.length || !tabPanes.length) return;
   const active = localStorage.getItem(activeTabStorageKey) || 'analyticsTab';
   switchTab(active);
   tabButtons.forEach((button) => {
@@ -551,28 +554,28 @@ function bootstrapSettings() {
   preserveHistory.checked = localStorage.getItem(preserveHistoryStorageKey) !== 'false';
 }
 
-saveSources.addEventListener('click', () => {
+if (saveSources) saveSources.addEventListener('click', () => {
   updateSourceConfigFromUI();
   saveSourceConfigs();
   localStorage.setItem(preserveHistoryStorageKey, String(preserveHistory.checked));
   setSyncStatus('Nastavení zdrojů uloženo.');
 });
 
-syncNow.addEventListener('click', fetchAllSources);
-addOrUpdateSource.addEventListener('click', upsertSourceFromEditor);
-refreshMinutes.addEventListener('change', applyRefreshTimer);
-preserveHistory.addEventListener('change', () => {
+if (syncNow) syncNow.addEventListener('click', fetchAllSources);
+if (addOrUpdateSource) addOrUpdateSource.addEventListener('click', upsertSourceFromEditor);
+if (refreshMinutes) refreshMinutes.addEventListener('change', applyRefreshTimer);
+if (preserveHistory) preserveHistory.addEventListener('change', () => {
   localStorage.setItem(preserveHistoryStorageKey, String(preserveHistory.checked));
 });
 
-sourceRows.addEventListener('click', (event) => {
+if (sourceRows) sourceRows.addEventListener('click', (event) => {
   const button = event.target.closest('[data-action="sync-one"]');
   if (!button) return;
   const id = button.getAttribute('data-id');
   if (id) syncOneSource(id);
 });
 
-resetToDemo.addEventListener('click', () => {
+if (resetToDemo) resetToDemo.addEventListener('click', () => {
   records = [...baseRecords];
   localStorage.removeItem(dataStorageKey);
   populateFilters();
@@ -584,7 +587,7 @@ resetToDemo.addEventListener('click', () => {
 });
 
 [channelFilter, countryFilter, dateFrom, dateTo].forEach((el) => el.addEventListener('change', renderDashboard));
-resetFilters.addEventListener('click', resetFiltersAll);
+if (resetFilters) resetFilters.addEventListener('click', resetFiltersAll);
 
 bootstrapTabs();
 bootstrapSettings();
