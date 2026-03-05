@@ -207,3 +207,41 @@ Pro kontrolu, že jste na správné větvi:
 git status
 git branch --show-current
 ```
+
+
+### Co dál po `git checkout -b integration/lovable lovable/main`
+
+Výsledek, který píšete, je správně – jste na integrační větvi od lovable repozitáře.
+
+Doporučený pokračující postup:
+
+```bash
+# 1) ověřit, kde jste
+git branch --show-current
+git status
+
+# 2) najít správnou složku projektu (musí obsahovat dev_server.py)
+pwd
+ls
+
+# 3) pokud dev_server.py nevidíte, přejděte do správné složky
+cd <slozka-kde-je-dev_server.py>
+
+# 4) spusťte lokální server
+python3 dev_server.py
+```
+
+Na Windows je vaše chyba:
+
+`can't open file ...\review-dashboard\review-dashboard\dev_server.py`
+
+známka toho, že jste ve špatném adresáři (o úroveň vedle), nebo pracujete v jiném klonu bez `dev_server.py`.
+
+Rychlá kontrola na Windows PowerShell:
+
+```powershell
+Get-Location
+Get-ChildItem
+```
+
+Po spuštění serveru otevřete `http://localhost:8000` a pak můžeme udělat první cílený merge (např. jen data sync vrstvu).
