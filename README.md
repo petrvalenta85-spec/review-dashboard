@@ -11,6 +11,7 @@ Jednoduchá webová aplikace pro centralizovaný přehled zákaznických hodnoce
 - Přehledné souhrnné KPI karty.
 - Automatický import dat přes API bez ručního uploadu souborů.
 - Konfigurace **každého zdroje zvlášť** (URL exportu, auth token, parser, enabled).
+- Možnost smazat vybraný kanál přímo v tabulce zdrojů.
 - Periodická synchronizace dat (nastavitelný interval v minutách).
 - Indikátor zdroje dat (Live API vs Demo) a čas poslední úspěšné synchronizace.
 - Tlačítko synchronizace pro každý jednotlivý kanál (bez načítání všeho).

@@ -319,7 +319,10 @@ function renderSourceSettings() {
       <td><input data-field="token" data-id="${source.id}" value="${source.token}" placeholder="Bearer ..." /></td>
       <td><select data-field="parser" data-id="${source.id}">${parserSelect}</select></td>
       <td>${formatDateTime(source.lastSyncAt)}</td>
-      <td><button type="button" class="sync-one" data-action="sync-one" data-id="${source.id}">Sync kanál</button></td>
+      <td>
+        <button type="button" class="sync-one" data-action="sync-one" data-id="${source.id}">Sync kanál</button>
+        <button type="button" class="delete-one secondary" data-action="delete-one" data-id="${source.id}">Smazat</button>
+      </td>
     `;
     sourceRows.append(row);
   });
@@ -429,6 +432,31 @@ function mergeAllRecords(newRecords, keepHistory) {
   records = [...map.values()];
 }
 
+
+function deleteSource(sourceIdValue) {
+  const target = sourceConfigs.find((source) => source.id === sourceIdValue);
+  if (!target) {
+    setSyncStatus('Zdroj pro smazání nebyl nalezen.');
+    return;
+  }
+
+  if (sourceConfigs.length <= 1) {
+    setSyncStatus('Nelze smazat poslední zdroj.');
+    return;
+  }
+
+  sourceConfigs = sourceConfigs.filter((source) => source.id !== sourceIdValue);
+  records = records.filter(
+    (record) => !(record.channel === target.channel && record.country === target.country)
+  );
+  saveSourceConfigs();
+  saveRecords();
+  renderSourceSettings();
+  populateFilters();
+  renderDashboard();
+  setSyncStatus(`Kanál ${target.channel} (${target.country}) byl smazán.`);
+}
+
 async function syncOneSource(sourceIdValue) {
   updateSourceConfigFromUI();
   saveSourceConfigs();
@@ -535,7 +563,11 @@ function resetFiltersAll() {
 function switchTab(tabId) {
   const hasTarget = [...tabPanes].some((pane) => pane.id === tabId);
   const resolved = hasTarget ? tabId : 'analyticsTab';
-  tabPanes.forEach((pane) => pane.classList.toggle('hidden', pane.id !== resolved));
+  tabPanes.forEach((pane) => {
+    const hide = pane.id !== resolved;
+    pane.classList.toggle('hidden', hide);
+    pane.hidden = hide;
+  });
   tabButtons.forEach((button) => button.classList.toggle('active', button.dataset.tab === resolved));
   localStorage.setItem(activeTabStorageKey, resolved);
 }
@@ -573,6 +605,11 @@ if (sourceRows) sourceRows.addEventListener('click', (event) => {
   if (!button) return;
   const id = button.getAttribute('data-id');
   if (id) syncOneSource(id);
+
+  const deleteButton = event.target.closest('[data-action="delete-one"]');
+  if (!deleteButton) return;
+  const deleteId = deleteButton.getAttribute('data-id');
+  if (deleteId) deleteSource(deleteId);
 });
 
 if (resetToDemo) resetToDemo.addEventListener('click', () => {
