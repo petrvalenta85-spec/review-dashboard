@@ -162,3 +162,42 @@ Pak přenášejte změny cíleně (nejlépe po modulech), ne "všechno najednou"
 ### Co budu potřebovat, abych to spojil přímo já
 
 Pošlete URL nového repozitáře (nebo přidejte remote sem do prostředí) a cílovou větev. Pak můžu připravit konkrétní merge/integraci přímo v kódu.
+
+
+### Jak přidat remote a cílovou větev (přesné příkazy)
+
+Spusťte v terminálu v tomto repozitáři:
+
+```bash
+# 1) zkontrolovat aktuální remotes
+git remote -v
+
+# 2) přidat nový remote (název si můžete změnit, zde používáme "lovable")
+git remote add lovable <URL_NOVEHO_REPOZITARE>
+
+# 3) stáhnout větve z nového repozitáře
+git fetch lovable
+
+# 4) vypsat dostupné remote větve
+git branch -r | grep lovable/
+
+# 5) vytvořit lokální integrační větev z cílové remote větve
+git checkout -b integration/lovable lovable/<CILOVA_VETEV>
+```
+
+Příklad (pokud cílová větev je `main`):
+
+```bash
+git remote add lovable https://github.com/<ORG_NEBO_UZIVATEL>/<REPO>.git
+git fetch lovable
+git checkout -b integration/lovable lovable/main
+```
+
+Pokud je repo privátní a HTTPS se ptá na heslo, použijte Personal Access Token (PAT) jako password nebo SSH remote (`git@github.com:...`).
+
+Pro kontrolu, že jste na správné větvi:
+
+```bash
+git status
+git branch --show-current
+```
