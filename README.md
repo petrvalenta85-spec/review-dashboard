@@ -271,6 +271,31 @@ A pak otevřít URL, které vypíše Vite (typicky `http://localhost:5173`).
 3. Pokud chcete, připravím vám další krok: přesný seznam souborů ve `src/`, které upravit jako první.
 
 
+
+
+### Jedním skriptem (Windows) – bez ručního kopírování příkazů
+
+Přidal jsem skript `windows-dev-run.ps1`, který udělá:
+- dočasné `ExecutionPolicy Bypass` jen pro aktuální okno,
+- `npm install`,
+- `npm run dev`.
+
+Použití v PowerShellu (v kořeni projektu):
+
+```powershell
+./windows-dev-run.ps1
+```
+
+Volitelné parametry:
+
+```powershell
+# když už jsou balíčky nainstalované
+./windows-dev-run.ps1 -SkipInstall
+
+# vynutí použití npm.cmd (když je problém s npm.ps1)
+./windows-dev-run.ps1 -UseNpmCmd
+```
+
 ### Windows PowerShell chyba: `npm.ps1 cannot be loaded`
 
 Tato chyba není problém projektu, ale PowerShell bezpečnostní politiky (Execution Policy).
