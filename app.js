@@ -185,16 +185,42 @@ function loadRecords() {
 }
 function saveRecords() { localStorage.setItem(dataStorageKey, JSON.stringify(records)); }
 
+function normalizeSourceConfig(source) {
+  const channel = (source?.channel || '').trim().toLowerCase();
+  const country = (source?.country || '').trim().toUpperCase();
+  const endpoint = (source?.endpoint || '').trim();
+  if (!channel || !country || !endpoint) return null;
+
+  return {
+    id: source?.id || sourceId(channel, country),
+    channel,
+    country,
+    endpoint,
+    token: (source?.token || '').trim(),
+    parser: source?.parser || 'standard-array',
+    enabled: Boolean(source?.enabled),
+    lastSyncAt: source?.lastSyncAt || ''
+  };
+}
+
 function loadSourceConfigs() {
   const saved = localStorage.getItem(sourceStorageKey);
   if (!saved) return [...defaultSources];
+
   try {
     const parsed = JSON.parse(saved);
     if (!Array.isArray(parsed) || parsed.length === 0) return [...defaultSources];
-    const knownIds = new Set(parsed.map((item) => item.id));
-    const merged = [...parsed];
-    defaultSources.forEach((source) => { if (!knownIds.has(source.id)) merged.push(source); });
-    return merged.map((source) => ({ ...source, lastSyncAt: source.lastSyncAt || '' }));
+
+    const unique = new Map();
+    parsed.forEach((item) => {
+      const normalized = normalizeSourceConfig(item);
+      if (!normalized) return;
+      const key = sourceId(normalized.channel, normalized.country);
+      unique.set(key, { ...normalized, id: key });
+    });
+
+    const cleaned = [...unique.values()];
+    return cleaned.length ? cleaned : [...defaultSources];
   } catch {
     return [...defaultSources];
   }

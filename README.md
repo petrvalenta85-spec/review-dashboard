@@ -25,6 +25,18 @@ python3 dev_server.py
 
 Aplikace bude dostupná na `http://localhost:8000`.
 
+### Spuštění ve VS Code
+
+1. Otevřete projekt ve VS Code.
+2. Otevřete **Terminal → New Terminal**.
+3. Spusťte přesně tento příkaz:
+
+```bash
+python3 dev_server.py
+```
+
+4. V prohlížeči otevřete `http://localhost:8000` (ne Live Server extension).
+
 > `dev_server.py` je lokální server s proxy endpointem `/proxy`, aby na localhostu fungovalo načítání Heureka XML exportu bez CORS blokace v browseru.
 
 
