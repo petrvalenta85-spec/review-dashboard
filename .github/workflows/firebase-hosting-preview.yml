@@ -6,12 +6,13 @@ on:
 
 jobs:
   deploy_preview:
-    # bezpečnost: nespouštět pro forky (jen PR z téhož repa)
+    # nespouštět pro forky (jen PR z téhož repa)
     if: github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     permissions:
       contents: read
       pull-requests: write
+      checks: write
 
     steps:
       - name: Checkout PR head
