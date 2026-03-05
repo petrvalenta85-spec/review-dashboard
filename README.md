@@ -118,3 +118,47 @@ Typický projev: status hlásí chybu `Failed to fetch` / blokaci požadavku.
 Doporučené řešení pro reálný provoz:
 - pro lokální vývoj používat `dev_server.py`, který poskytuje proxy endpoint `/proxy` pro Heureka XML,
 - v produkci volat zdroje přes vlastní backend/proxy (server-to-server) a na frontendu číst sjednocené interní API.
+
+
+## Propojení s dashboardem z lovable.dev (nový GitHub repozitář)
+
+Ano, propojení je možné. Nejbezpečnější je převzít **UI z lovable.dev** a zachovat zdejší datovou logiku (sync/parsování/filtry) jako integrační vrstvu.
+
+### Doporučený postup (MVP)
+
+1. V novém repozitáři z lovable.dev vytvořte větev `integration/bruderland-sync`.
+2. Z tohoto repozitáře přeneste minimálně soubory:
+   - `app.js` (logika importu/sync/parsování),
+   - `dev_server.py` (lokální proxy pro Heureka XML),
+   - případně části `styles.css` jen pokud chybí základní styly tabulek/formulářů.
+3. V lovable UI vytvořte stejné DOM elementy (nebo jejich ID mapování), které logika očekává:
+   - filtry: `#dateFrom`, `#dateTo`, `#countryFilter`, `#channelFilter`,
+   - dashboard výstupy: `#summaryCards`, `#countryRows`, `#channelRows`,
+   - settings/sync: `#sourceRows`, `#syncNow`, `#syncStatus`, `#refreshMinutes`, ...
+4. Ověřte, že v `index.html` je načten `app.js` až po renderu DOM (na konci `body`, nebo přes `defer`).
+5. Spouštějte lokálně vždy přes:
+
+```bash
+python3 dev_server.py
+```
+
+6. Otevřete `http://localhost:8000` a otestujte:
+   - přepínání záložek,
+   - smazání/uložení kanálu,
+   - `Sync kanál` pro `heureka.cz`.
+
+### Varianta „spojit repozitáře“ přes git remote
+
+Pokud chcete porovnat a spojit kód přímo přes git:
+
+```bash
+git remote add lovable <URL_VASEHO_NOVEHO_REPA>
+git fetch lovable
+git checkout -b merge/lovable-dashboard lovable/main
+```
+
+Pak přenášejte změny cíleně (nejlépe po modulech), ne "všechno najednou".
+
+### Co budu potřebovat, abych to spojil přímo já
+
+Pošlete URL nového repozitáře (nebo přidejte remote sem do prostředí) a cílovou větev. Pak můžu připravit konkrétní merge/integraci přímo v kódu.
