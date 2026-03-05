@@ -44,6 +44,7 @@ const sourceStorageKey = 'bruderland-source-configs';
 const intervalStorageKey = 'bruderland-api-refresh-minutes';
 const syncMetaStorageKey = 'bruderland-sync-meta';
 const preserveHistoryStorageKey = 'bruderland-preserve-history';
+const activeTabStorageKey = 'bruderland-active-tab';
 
 const dateFrom = document.querySelector('#dateFrom');
 const dateTo = document.querySelector('#dateTo');
@@ -72,6 +73,8 @@ const editorToken = document.querySelector('#editorToken');
 const editorParser = document.querySelector('#editorParser');
 const editorEnabled = document.querySelector('#editorEnabled');
 const addOrUpdateSource = document.querySelector('#addOrUpdateSource');
+const tabButtons = document.querySelectorAll('.tab-btn');
+const tabPanes = document.querySelectorAll('.tab-pane');
 
 let records = loadRecords();
 let sourceConfigs = loadSourceConfigs();
@@ -529,6 +532,20 @@ function resetFiltersAll() {
   renderDashboard();
 }
 
+function switchTab(tabId) {
+  tabPanes.forEach((pane) => pane.classList.toggle('hidden', pane.id != tabId));
+  tabButtons.forEach((button) => button.classList.toggle('active', button.dataset.tab === tabId));
+  localStorage.setItem(activeTabStorageKey, tabId);
+}
+
+function bootstrapTabs() {
+  const active = localStorage.getItem(activeTabStorageKey) || 'analyticsTab';
+  switchTab(active);
+  tabButtons.forEach((button) => {
+    button.addEventListener('click', () => switchTab(button.dataset.tab));
+  });
+}
+
 function bootstrapSettings() {
   refreshMinutes.value = localStorage.getItem(intervalStorageKey) || '5';
   preserveHistory.checked = localStorage.getItem(preserveHistoryStorageKey) !== 'false';
@@ -569,6 +586,7 @@ resetToDemo.addEventListener('click', () => {
 [channelFilter, countryFilter, dateFrom, dateTo].forEach((el) => el.addEventListener('change', renderDashboard));
 resetFilters.addEventListener('click', resetFiltersAll);
 
+bootstrapTabs();
 bootstrapSettings();
 renderEditorParsers();
 editorParser.value = 'heureka-xml';

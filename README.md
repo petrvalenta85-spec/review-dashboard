@@ -4,6 +4,8 @@ Jednoduchá webová aplikace pro centralizovaný přehled zákaznických hodnoce
 
 ## Co umí
 
+- Záložky pro oddělení analytické části (**Dashboard**) a konfigurační části (**Nastavení zdrojů**).
+
 - Agregace metrik na úrovni celku, zemí i jednotlivých kanálů.
 - Filtrování dle období (`od` / `do`), země a kanálu.
 - Přehledné souhrnné KPI karty.
