@@ -22,7 +22,13 @@ class DevHandler(SimpleHTTPRequestHandler):
 
     def do_GET(self):
         parsed = urlparse(self.path)
-        if parsed.path != "/proxy":
+        request_path = parsed.path
+
+        # Some clients may send absolute-form request targets.
+        if request_path.startswith(("http://", "https://")):
+            request_path = urlparse(request_path).path
+
+        if request_path not in {"/proxy", "/proxy/"}:
             return super().do_GET()
 
         params = parse_qs(parsed.query)

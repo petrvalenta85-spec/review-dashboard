@@ -390,7 +390,7 @@ function upsertSourceFromEditor() {
 
 function resolveRequestUrl(source) {
   const endpoint = source.endpoint.trim();
-  const localHostnames = new Set(['localhost', '127.0.0.1']);
+  const localHostnames = new Set(['localhost', '127.0.0.1', '::1', '[::1]']);
   const isLocal = localHostnames.has(window.location.hostname);
   const isExternal = /^https?:\/\//i.test(endpoint);
 
@@ -408,7 +408,12 @@ async function fetchSource(source, { force = false } = {}) {
   if (source.token) headers.Authorization = source.token;
 
   const response = await fetch(resolveRequestUrl(source), { headers });
-  if (!response.ok) throw new Error(`${source.channel}: ${response.status} ${response.statusText}`);
+  if (!response.ok) {
+    if (response.status === 404 && resolveRequestUrl(source).startsWith('/proxy')) {
+      throw new Error(`${source.channel}: /proxy endpoint nebyl nalezen. Spusťte aplikaci přes python3 dev_server.py (ne přes python3 -m http.server).`);
+    }
+    throw new Error(`${source.channel}: ${response.status} ${response.statusText}`);
+  }
 
   const payload = source.parser === 'heureka-xml' ? await response.text() : await response.json();
   const extracted = parseByType(payload, source.parser);

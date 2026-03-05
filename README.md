@@ -28,6 +28,9 @@ Aplikace bude dostupná na `http://localhost:8000`.
 > `dev_server.py` je lokální server s proxy endpointem `/proxy`, aby na localhostu fungovalo načítání Heureka XML exportu bez CORS blokace v browseru.
 
 
+> Pokud vidíte chybu `404 /proxy`, aplikace pravděpodobně běží přes jiný server (`python3 -m http.server`).
+> Pro funkční Heureka sync na localhostu používejte vždy `python3 dev_server.py` (funguje i na `localhost`, `127.0.0.1` i `::1`).
+
 ## Jak funguje import pro různé zdroje
 
 V sekci **Nastavení API podle zdroje** má každý kanál vlastní konfiguraci:
