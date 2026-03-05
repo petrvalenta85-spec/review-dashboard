@@ -12,7 +12,7 @@ Jednoduchá webová aplikace pro centralizovaný přehled zákaznických hodnoce
 - Automatický import dat přes API bez ručního uploadu souborů.
 - Konfigurace **každého zdroje zvlášť** (URL exportu, auth token, parser, enabled).
 - Možnost smazat vybraný kanál přímo v tabulce zdrojů.
-- Periodická synchronizace dat (nastavitelný interval v minutách).
+- Periodická synchronizace dat 1x denně (1440 minut).
 - Indikátor zdroje dat (Live API vs Demo) a čas poslední úspěšné synchronizace.
 - Tlačítko synchronizace pro každý jednotlivý kanál (bez načítání všeho).
 - Volba **Zachovat historická data (append)** pro API, která vrací jen klouzavé časové okno.

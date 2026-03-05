@@ -536,13 +536,15 @@ async function fetchAllSources() {
 
 function applyRefreshTimer() {
   const minutes = Number(refreshMinutes.value);
-  if (!Number.isFinite(minutes) || minutes < 1) {
-    setSyncStatus('Interval musí být alespoň 1 minuta.');
-    return;
+  if (!Number.isFinite(minutes) || minutes < 1440) {
+    refreshMinutes.value = '1440';
+    setSyncStatus('Interval je pevně nastaven na 1x denně (1440 minut).');
   }
-  localStorage.setItem(intervalStorageKey, String(minutes));
+
+  const effectiveMinutes = 1440;
+  localStorage.setItem(intervalStorageKey, String(effectiveMinutes));
   if (timerId) clearInterval(timerId);
-  timerId = setInterval(fetchAllSources, minutes * 60 * 1000);
+  timerId = setInterval(fetchAllSources, effectiveMinutes * 60 * 1000);
 }
 
 function renderDashboard() {
@@ -582,7 +584,7 @@ function bootstrapTabs() {
 }
 
 function bootstrapSettings() {
-  refreshMinutes.value = localStorage.getItem(intervalStorageKey) || '5';
+  refreshMinutes.value = localStorage.getItem(intervalStorageKey) || '1440';
   preserveHistory.checked = localStorage.getItem(preserveHistoryStorageKey) !== 'false';
 }
 
@@ -601,15 +603,18 @@ if (preserveHistory) preserveHistory.addEventListener('change', () => {
 });
 
 if (sourceRows) sourceRows.addEventListener('click', (event) => {
-  const button = event.target.closest('[data-action="sync-one"]');
-  if (!button) return;
-  const id = button.getAttribute('data-id');
-  if (id) syncOneSource(id);
+  const syncButton = event.target.closest('[data-action="sync-one"]');
+  if (syncButton) {
+    const id = syncButton.getAttribute('data-id');
+    if (id) syncOneSource(id);
+    return;
+  }
 
   const deleteButton = event.target.closest('[data-action="delete-one"]');
-  if (!deleteButton) return;
-  const deleteId = deleteButton.getAttribute('data-id');
-  if (deleteId) deleteSource(deleteId);
+  if (deleteButton) {
+    const deleteId = deleteButton.getAttribute('data-id');
+    if (deleteId) deleteSource(deleteId);
+  }
 });
 
 if (resetToDemo) resetToDemo.addEventListener('click', () => {
