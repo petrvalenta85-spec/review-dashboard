@@ -333,3 +333,31 @@ npm run dev
 ```
 
 Pokud ve firmě spravuje policy IT oddělení (GPO), použijte `npm.cmd` nebo požádejte IT o povolení.
+
+
+### Chyba: `./windows-dev-run.ps1 ... is not recognized`
+
+V PowerShellu na Windows použijte raději zpětné lomítko:
+
+```powershell
+.\windows-dev-run.ps1
+```
+
+Pokud to stále hlásí, že skript neexistuje, jste v jiném adresáři/repozitáři.
+Ověření:
+
+```powershell
+Get-Location
+Get-ChildItem windows-dev-run.ps1
+```
+
+Když soubor nenajde:
+- přejděte do složky, kde skript je, nebo
+- pokud jste v lovable repozitáři, spusťte přímo:
+
+```powershell
+npm.cmd install
+npm.cmd run dev
+```
+
+Pozn.: `./script.ps1` je běžné pro bash; v PowerShellu funguje standardně `.\script.ps1`.
