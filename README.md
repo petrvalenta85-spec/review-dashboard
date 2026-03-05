@@ -178,8 +178,11 @@ git remote add lovable <URL_NOVEHO_REPOZITARE>
 # 3) stáhnout větve z nového repozitáře
 git fetch lovable
 
-# 4) vypsat dostupné remote větve
+# 4) vypsat dostupné remote větve (Linux/macOS/Git Bash)
 git branch -r | grep lovable/
+
+# 4b) PowerShell alternativa (Windows)
+git branch -r | Select-String "lovable/"
 
 # 5) vytvořit lokální integrační větev z cílové remote větve
 git checkout -b integration/lovable lovable/<CILOVA_VETEV>
@@ -194,6 +197,9 @@ git checkout -b integration/lovable lovable/main
 ```
 
 Pokud je repo privátní a HTTPS se ptá na heslo, použijte Personal Access Token (PAT) jako password nebo SSH remote (`git@github.com:...`).
+
+
+Na Windows PowerShell `grep` standardně není dostupný, proto použijte `Select-String`.
 
 Pro kontrolu, že jste na správné větvi:
 
