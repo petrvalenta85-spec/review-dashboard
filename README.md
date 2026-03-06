@@ -8,6 +8,7 @@ Jednoduchá webová aplikace pro centralizovaný přehled zákaznických hodnoce
 
 - Agregace metrik na úrovni celku, zemí i jednotlivých kanálů.
 - Filtrování dle období (`od` / `do`), země a kanálu.
+- Rychlé tlačítko **Nahrát testovací data (5)** přímo v Dashboardu (pro obnovu dat při testování).
 - Přehledné souhrnné KPI karty.
 - Automatický import dat přes API bez ručního uploadu souborů.
 - Konfigurace **každého zdroje zvlášť** (URL exportu, auth token, parser, enabled).
@@ -63,6 +64,13 @@ U každého kanálu je navíc tlačítko **Sync kanál** pro refresh jen jednoho
 Pokud API vrací jen část historie (klouzavé okno), zapněte **Zachovat historická data (append)**. Aplikace pak při globálním synci nepřepisuje vše, ale mergeuje data podle klíče `kanál + země + datum`.
 
 Nové zdroje můžete přidat přímo formulářem **Přidat / upravit vybraný kanál** (kanál, země, URL, token, parser, aktivace).
+
+
+
+## Obnova testovacích dat jedním klikem
+
+Pokud se data v aplikaci vymažou nebo přepíšou nevalidním syncem, použijte v Dashboardu tlačítko **Nahrát testovací data (5)**.
+Tlačítko vloží 5 testovacích záznamů, uloží je do `localStorage` a přepne indikátor na režim Demo.
 
 ## Očekávaný normalizovaný záznam
 

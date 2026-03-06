@@ -9,6 +9,14 @@ const baseRecords = [
   { date: '2026-02-11', country: 'AT', channel: 'idealo.at', score: 4.2, reviews: 174 }
 ];
 
+const testRecordsPack = [
+  { date: '2026-03-01', country: 'CZ', channel: 'heureka.cz', score: 4.8, reviews: 95 },
+  { date: '2026-03-02', country: 'SK', channel: 'heureka.sk', score: 4.6, reviews: 61 },
+  { date: '2026-03-03', country: 'PL', channel: 'ceneo', score: 4.2, reviews: 44 },
+  { date: '2026-03-04', country: 'DE', channel: 'trustedshop', score: 4.9, reviews: 132 },
+  { date: '2026-03-05', country: 'AT', channel: 'idealo.at', score: 4.3, reviews: 37 }
+];
+
 const apiAvailability = [
   { channel: 'heureka.cz / heureka.sk', status: 'Partnerské API', note: 'Merchant/partner integrace po schválení.' },
   { channel: 'arukereso / compari', status: 'Neveřejné / partner-only', note: 'Běžně se řeší obchodně, ne veřejným API klíčem.' },
@@ -54,6 +62,7 @@ const summaryCards = document.querySelector('#summaryCards');
 const countryRows = document.querySelector('#countryRows');
 const channelRows = document.querySelector('#channelRows');
 const resetFilters = document.querySelector('#resetFilters');
+const loadTestData = document.querySelector('#loadTestData');
 
 const sourceRows = document.querySelector('#sourceRows');
 const refreshMinutes = document.querySelector('#refreshMinutes');
@@ -661,6 +670,18 @@ if (sourceRows) sourceRows.addEventListener('click', (event) => {
   }
 });
 
+
+function applyTestDataPack() {
+  records = [...testRecordsPack];
+  saveRecords();
+  syncMeta = { mode: 'demo', lastSyncAt: nowIso() };
+  saveSyncMeta();
+  populateFilters();
+  resetFiltersAll();
+  updateSyncIndicator();
+  setSyncStatus('Nahráno 5 testovacích záznamů do aplikace.');
+}
+
 if (resetToDemo) resetToDemo.addEventListener('click', () => {
   records = [...baseRecords];
   localStorage.removeItem(dataStorageKey);
@@ -674,6 +695,7 @@ if (resetToDemo) resetToDemo.addEventListener('click', () => {
 
 [channelFilter, countryFilter, dateFrom, dateTo].filter(Boolean).forEach((el) => el.addEventListener('change', renderDashboard));
 if (resetFilters) resetFilters.addEventListener('click', resetFiltersAll);
+if (loadTestData) loadTestData.addEventListener('click', applyTestDataPack);
 
 bootstrapTabs();
 bootstrapSettings();
