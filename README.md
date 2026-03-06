@@ -512,3 +512,33 @@ git push origin feat/merge-sync-layer-2
 ```
 
 Tím se **stejný PR #5 automaticky aktualizuje** – není potřeba zakládat nový PR.
+
+
+### PR hlásí "This branch has conflicts" – jak to opravit
+
+Pokud v GitHub PR vidíte konflikt (`README.md`, `app.js`, `index.html`, `styles.css`), udělejte to lokálně na stejné větvi PR:
+
+```powershell
+# 1) být na stejné větvi jako PR
+git checkout feat/merge-sync-layer-2
+
+# 2) stáhnout aktuální main
+git fetch origin
+
+# 3) sloučit main do PR větve (vyvolá konflikty lokálně)
+git merge origin/main
+
+# 4) vyřešit konflikty v souborech označených <<<<<<< ======= >>>>>>>
+#    (ponechat správnou kombinaci změn)
+
+# 5) označit konflikty jako vyřešené
+git add README.md app.js index.html styles.css
+
+# 6) dokončit merge commit
+git commit -m "Resolve merge conflicts with main"
+
+# 7) push zpět do stejné větve PR
+git push origin feat/merge-sync-layer-2
+```
+
+Po pushi se PR automaticky přepočítá a tlačítko merge se znovu aktivuje (pokud už nejsou další konflikty).
