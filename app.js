@@ -368,7 +368,9 @@ function renderEditorParsers() {
 function formatSyncError(error, source) {
   const raw = String(error?.message || error || 'Neznámá chyba');
   if (/Failed to fetch|NetworkError|Load failed/i.test(raw)) {
-    return `${source.channel}: požadavek byl zablokován (typicky CORS/HTTPS/partner whitelist). Na localhostu je to časté – doporučen je backend proxy.`;
+<<<<<<< HEAD
+    return `${source.channel}: požadavek byl zablokován (typicky CORS/HTTPS/partner whitelist). Pro Heureka XML je nutný backend proxy (localhost: /proxy přes dev_server.py, produkce: např. Firebase Function).`;
+>>>>>>> 00dc4b1 (Document how to update existing PR #5 on same branch)
   }
   return `${source.channel}: ${raw}`;
 }

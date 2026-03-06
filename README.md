@@ -400,3 +400,110 @@ git push -u origin feat/merge-sync-layer
 3. Nakonec UI napojení na komponenty (`src/`) a tlačítka sync.
 
 Takto vzniknou 2–3 menší PR místo jednoho velkého rizikového merge.
+<<<<<<< HEAD
+=======
+
+
+## Firebase init – co odpovědět (pro tento repozitář)
+
+Pro tento projekt (statický dashboard v rootu: `index.html`, `app.js`, `styles.css`) odpovězte ve `firebase init` takto:
+
+1. **Project Setup**
+   - `Use an existing project`
+   - vybrat: `bruderland-review-dashboard`
+
+2. **Hosting Setup**
+   - `What do you want to use as your public directory?` → `.`
+
+3. **Configure as a single-page app (rewrite all urls to /index.html)?**
+   - `No` (dashboard nepoužívá client-side routování typu `/route`)
+
+4. **Set up automatic builds and deploys with GitHub?**
+   - doporučení pro první krok: `No` (lze zapnout později)
+
+5. **File ./index.html already exists. Overwrite?**
+   - `No`
+
+Poté nasazení:
+
+```bash
+firebase deploy --only hosting
+```
+
+### Poznámka k `public` vs `.`
+
+CLI nabízí výchozí `public`, ale tento repozitář má statické soubory v kořeni. Pokud nechcete přesouvat soubory do složky `public/`, použijte `.` jako public directory.
+
+
+### Heureka sync na Firebase (aby nepadal CORS)
+
+V live prostředí na Firebase je pro `heureka-xml` potřeba backend proxy na cestě `/proxy`.
+Frontend nyní pro Heureka XML volá vždy `/proxy?url=...`.
+
+#### 1) Hosting rewrite na function
+
+Do `firebase.json` přidejte rewrite:
+
+```json
+{
+  "hosting": {
+    "rewrites": [
+      { "source": "/proxy", "function": "proxy" },
+      { "source": "**", "destination": "/index.html" }
+    ]
+  }
+}
+```
+
+#### 2) Function `proxy` (Node.js) – minimální kostra
+
+```js
+// functions/index.js
+const { onRequest } = require("firebase-functions/v2/https");
+
+exports.proxy = onRequest(async (req, res) => {
+  const target = String(req.query.url || "").trim();
+  if (!target) return res.status(400).json({ error: "Missing url" });
+
+  const parsed = new URL(target);
+  if (parsed.hostname !== "www.heureka.cz") {
+    return res.status(403).json({ error: "Host not allowed" });
+  }
+
+  const upstream = await fetch(target, { headers: { "User-Agent": "BruderlandReviewDashboard/1.0" } });
+  const body = await upstream.text();
+  res.set("Content-Type", upstream.headers.get("content-type") || "application/xml; charset=utf-8");
+  return res.status(upstream.status).send(body);
+});
+```
+
+Pak deploy:
+
+```bash
+firebase deploy --only functions,hosting
+```
+
+
+### Aktualizace existujícího PR #5 (bez zakládání nového PR)
+
+Pokud už máte otevřený PR `#5` z větve `feat/merge-sync-layer-2`, postup je:
+
+```powershell
+# 1) přepnout se na stejnou větev PR
+git checkout feat/merge-sync-layer-2
+
+# 2) stáhnout aktuální base větev (např. main)
+git fetch origin
+git merge origin/main
+# (případné konflikty vyřešit, uložit, pak: git add . && git commit)
+
+# 3) udělat vaše změny
+git add .
+git commit -m "Resolve merge conflicts and update sync integration"
+
+# 4) pushnout zpět do stejné větve
+git push origin feat/merge-sync-layer-2
+```
+
+Tím se **stejný PR #5 automaticky aktualizuje** – není potřeba zakládat nový PR.
+>>>>>>> 00dc4b1 (Document how to update existing PR #5 on same branch)
