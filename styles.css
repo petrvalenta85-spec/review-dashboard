@@ -19,7 +19,7 @@ header {
 }
 
 main {
-  max-width: 1100px;
+  max-width: 1200px;
   margin: 1.5rem auto;
   padding: 0 1rem 2rem;
   display: grid;
@@ -33,8 +33,33 @@ main {
   padding: 1rem;
 }
 
+
+.tabs {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.tab-btn {
+  background: #e5e7eb;
+  color: #111827;
+}
+
+.tab-btn.active {
+  background: #2563eb;
+  color: #fff;
+}
+
+.tab-pane {
+  display: grid;
+  gap: 1rem;
+}
+
+.hidden {
+  display: none !important;
+}
+
 .filter-grid,
-#channelForm {
+.sync-toolbar {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 0.75rem;
@@ -67,6 +92,38 @@ button.secondary {
   background: #6b7280;
 }
 
+
+.sync-indicators {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0.75rem 0;
+  align-items: center;
+}
+
+.badge {
+  display: inline-block;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.badge.ok {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.badge.warn {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.sync-one {
+  padding: 0.35rem 0.55rem;
+  font-size: 0.85rem;
+}
+
 .cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -90,6 +147,32 @@ button.secondary {
   gap: 1rem;
 }
 
+.table-scroll {
+  overflow-x: auto;
+}
+
+
+.source-editor {
+  margin: 0.75rem 0 1rem;
+  padding: 0.75rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background: #f9fafb;
+}
+
+.source-editor-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.65rem;
+  align-items: end;
+}
+
+.inline-check {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 table {
   width: 100%;
   border-collapse: collapse;
@@ -99,12 +182,30 @@ th,
 td {
   text-align: left;
   border-bottom: 1px solid #e5e7eb;
-  padding: 0.4rem 0;
+  padding: 0.45rem 0.25rem;
+  vertical-align: top;
 }
 
-#channelRegistry {
-  margin: 1rem 0 0;
-  padding-left: 1rem;
-  display: grid;
-  gap: 0.25rem;
+#sourceRows input,
+#sourceRows select {
+  min-width: 140px;
+  width: 100%;
+}
+
+#syncStatus {
+  margin-top: 0.75rem;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 0.75rem;
+  min-height: 52px;
+  white-space: pre-wrap;
+}
+
+.history-check {
+  white-space: nowrap;
+}
+
+.delete-one {
+  margin-left: 0.35rem;
 }

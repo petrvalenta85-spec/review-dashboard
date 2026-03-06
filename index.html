@@ -9,90 +9,171 @@
   <body>
     <header>
       <h1>Bruderland · Dashboard zákaznických hodnocení</h1>
-      <p>
-        Přehled metrik z kanálů Heureka, Arukereso, Ceneo, Compari, Trusted Shops a Idealo.
-      </p>
+      <p>Automatický přehled metrik napojený na samostatná API jednotlivých zdrojů.</p>
     </header>
 
     <main>
-      <section class="panel filters">
-        <h2>Filtry</h2>
-        <div class="filter-grid">
-          <label>
-            Od
-            <input id="dateFrom" type="date" />
-          </label>
-          <label>
-            Do
-            <input id="dateTo" type="date" />
-          </label>
-          <label>
-            Země
-            <select id="countryFilter"></select>
-          </label>
-          <label>
-            Kanál
-            <select id="channelFilter"></select>
-          </label>
-          <button id="resetFilters" class="secondary">Reset filtrů</button>
-        </div>
+      <nav class="tabs" aria-label="Navigace aplikace">
+        <button class="tab-btn active" data-tab="analyticsTab" type="button">Dashboard</button>
+        <button class="tab-btn" data-tab="settingsTab" type="button">Nastavení zdrojů</button>
+      </nav>
+
+      <section id="analyticsTab" class="tab-pane">
+        <section class="panel filters">
+          <h2>Filtry</h2>
+          <div class="filter-grid">
+            <label>
+              Od
+              <input id="dateFrom" type="date" />
+            </label>
+            <label>
+              Do
+              <input id="dateTo" type="date" />
+            </label>
+            <label>
+              Země
+              <select id="countryFilter"></select>
+            </label>
+            <label>
+              Kanál
+              <select id="channelFilter"></select>
+            </label>
+            <button id="resetFilters" class="secondary">Reset filtrů</button>
+            <button id="loadTestData" class="secondary" type="button">Nahrát testovací data (5)</button>
+          </div>
+        </section>
+
+        <section class="panel metrics">
+          <h2>Souhrn</h2>
+          <div class="cards" id="summaryCards"></div>
+        </section>
+
+        <section class="panel tables">
+          <h2>Vyhodnocení</h2>
+          <div class="table-grid">
+            <article>
+              <h3>Podle zemí</h3>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Země</th>
+                    <th>Průměrné hodnocení</th>
+                    <th>Počet recenzí</th>
+                  </tr>
+                </thead>
+                <tbody id="countryRows"></tbody>
+              </table>
+            </article>
+
+            <article>
+              <h3>Podle kanálů</h3>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Kanál</th>
+                    <th>Průměrné hodnocení</th>
+                    <th>Počet recenzí</th>
+                  </tr>
+                </thead>
+                <tbody id="channelRows"></tbody>
+              </table>
+            </article>
+          </div>
+        </section>
       </section>
 
-      <section class="panel metrics">
-        <h2>Souhrn</h2>
-        <div class="cards" id="summaryCards"></div>
-      </section>
+      <section id="settingsTab" class="tab-pane hidden" hidden>
+        <section class="panel api-sync">
+          <h2>Nastavení API podle zdroje</h2>
+          <p>
+            Každý kanál má vlastní URL pro export, autorizaci a parser odpovědi. Můžete zapnout jen zdroje,
+            které máte aktuálně integrované.
+          </p>
 
-      <section class="panel tables">
-        <h2>Vyhodnocení</h2>
-        <div class="table-grid">
-          <article>
-            <h3>Podle zemí</h3>
+          <div class="sync-toolbar">
+            <label>
+              Interval synchronizace (min)
+              <input id="refreshMinutes" type="number" min="1440" value="1440" />
+            </label>
+            <label class="inline-check history-check">
+              <input id="preserveHistory" type="checkbox" checked />
+              Zachovat historická data (append)
+            </label>
+            <button id="syncNow">Synchronizovat vše nyní</button>
+            <button id="resetToDemo" class="secondary">Použít demo data</button>
+            <button id="saveSources" class="secondary">Uložit nastavení zdrojů</button>
+          </div>
+
+          <div class="sync-indicators">
+            <span id="dataModeBadge" class="badge warn">Zdroj dat: Demo</span>
+            <span id="lastSyncBadge">Poslední úspěšná synchronizace: nikdy</span>
+          </div>
+
+          <div class="source-editor">
+            <h3>Přidat / upravit vybraný kanál</h3>
+            <div class="source-editor-grid">
+              <label>
+                Kanál
+                <input id="editorChannel" placeholder="např. heureka.cz" />
+              </label>
+              <label>
+                Země
+                <input id="editorCountry" maxlength="2" placeholder="CZ" />
+              </label>
+              <label>
+                URL pro stahování dat
+                <input id="editorEndpoint" placeholder="https://..." />
+              </label>
+              <label>
+                Auth token
+                <input id="editorToken" placeholder="Bearer ..." />
+              </label>
+              <label>
+                Parser
+                <select id="editorParser"></select>
+              </label>
+              <label class="inline-check">
+                <input id="editorEnabled" type="checkbox" checked />
+                Aktivní zdroj
+              </label>
+              <button id="addOrUpdateSource" type="button">Uložit vybraný kanál</button>
+            </div>
+          </div>
+
+          <div class="table-scroll">
             <table>
               <thead>
                 <tr>
+                  <th>Aktivní</th>
+                  <th>Zdroj</th>
                   <th>Země</th>
-                  <th>Průměrné hodnocení</th>
-                  <th>Počet recenzí</th>
+                  <th>URL pro stahování dat</th>
+                  <th>Auth token (volitelně)</th>
+                  <th>Parser</th>
+                  <th>Poslední sync</th>
+                  <th>Akce</th>
                 </tr>
               </thead>
-              <tbody id="countryRows"></tbody>
+              <tbody id="sourceRows"></tbody>
             </table>
-          </article>
+          </div>
 
-          <article>
-            <h3>Podle kanálů</h3>
-            <table>
-              <thead>
-                <tr>
-                  <th>Kanál</th>
-                  <th>Průměrné hodnocení</th>
-                  <th>Počet recenzí</th>
-                </tr>
-              </thead>
-              <tbody id="channelRows"></tbody>
-            </table>
-          </article>
-        </div>
-      </section>
+          <pre id="syncStatus" aria-live="polite"></pre>
+        </section>
 
-      <section class="panel manage-channels">
-        <h2>Správa kanálů</h2>
-        <p>
-          Seznam podporovaných kanálů lze rozšiřovat bez zásahu do kódu pomocí formuláře níže.
-        </p>
-        <form id="channelForm">
-          <label>
-            Název kanálu
-            <input id="channelName" required placeholder="např. Google Reviews" />
-          </label>
-          <label>
-            Kód země
-            <input id="channelCountry" required maxlength="2" placeholder="CZ" />
-          </label>
-          <button type="submit">Přidat kanál</button>
-        </form>
-        <ul id="channelRegistry"></ul>
+        <section class="panel channels-api">
+          <h2>Dostupnost API podle kanálu</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Kanál</th>
+                <th>Stav API</th>
+                <th>Poznámka</th>
+              </tr>
+            </thead>
+            <tbody id="apiAvailabilityRows"></tbody>
+          </table>
+        </section>
       </section>
     </main>
 
