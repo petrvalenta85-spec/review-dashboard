@@ -507,3 +507,4 @@ git push origin feat/merge-sync-layer-2
 
 Tím se **stejný PR #5 automaticky aktualizuje** – není potřeba zakládat nový PR.
 >>>>>>> 00dc4b1 (Document how to update existing PR #5 on same branch)
+# trigger
