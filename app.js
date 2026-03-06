@@ -628,14 +628,14 @@ function bootstrapTabs() {
 }
 
 function bootstrapSettings() {
-  refreshMinutes.value = localStorage.getItem(intervalStorageKey) || '1440';
-  preserveHistory.checked = localStorage.getItem(preserveHistoryStorageKey) !== 'false';
+  if (refreshMinutes) refreshMinutes.value = localStorage.getItem(intervalStorageKey) || '1440';
+  if (preserveHistory) preserveHistory.checked = localStorage.getItem(preserveHistoryStorageKey) !== 'false';
 }
 
 if (saveSources) saveSources.addEventListener('click', () => {
   updateSourceConfigFromUI();
   saveSourceConfigs();
-  localStorage.setItem(preserveHistoryStorageKey, String(preserveHistory.checked));
+  localStorage.setItem(preserveHistoryStorageKey, String(preserveHistory?.checked ?? true));
   setSyncStatus('Nastavení zdrojů uloženo.');
 });
 
@@ -643,7 +643,7 @@ if (syncNow) syncNow.addEventListener('click', fetchAllSources);
 if (addOrUpdateSource) addOrUpdateSource.addEventListener('click', upsertSourceFromEditor);
 if (refreshMinutes) refreshMinutes.addEventListener('change', applyRefreshTimer);
 if (preserveHistory) preserveHistory.addEventListener('change', () => {
-  localStorage.setItem(preserveHistoryStorageKey, String(preserveHistory.checked));
+  localStorage.setItem(preserveHistoryStorageKey, String(preserveHistory?.checked ?? true));
 });
 
 if (sourceRows) sourceRows.addEventListener('click', (event) => {
@@ -672,20 +672,22 @@ if (resetToDemo) resetToDemo.addEventListener('click', () => {
   setSyncStatus('Použita lokální demo data.');
 });
 
-[channelFilter, countryFilter, dateFrom, dateTo].forEach((el) => el.addEventListener('change', renderDashboard));
+[channelFilter, countryFilter, dateFrom, dateTo].filter(Boolean).forEach((el) => el.addEventListener('change', renderDashboard));
 if (resetFilters) resetFilters.addEventListener('click', resetFiltersAll);
 
 bootstrapTabs();
 bootstrapSettings();
-renderEditorParsers();
-editorParser.value = 'heureka-xml';
-editorChannel.value = 'heureka.cz';
-editorCountry.value = 'CZ';
-editorEndpoint.value = 'https://www.heureka.cz/direct/dotaznik/export-review.php?key=3d1c95786eee7013da761a88cad80c60';
-renderSourceSettings();
-renderApiAvailability();
-populateFilters();
-renderDashboard();
+if (editorParser) renderEditorParsers();
+if (editorParser) editorParser.value = 'heureka-xml';
+if (editorChannel) editorChannel.value = 'heureka.cz';
+if (editorCountry) editorCountry.value = 'CZ';
+if (editorEndpoint) editorEndpoint.value = 'https://www.heureka.cz/direct/dotaznik/export-review.php?key=3d1c95786eee7013da761a88cad80c60';
+if (sourceRows) renderSourceSettings();
+if (apiAvailabilityRows) renderApiAvailability();
+if (countryFilter && channelFilter && dateFrom && dateTo) {
+  populateFilters();
+  renderDashboard();
+}
 updateSyncIndicator();
-applyRefreshTimer();
-fetchAllSources();
+if (refreshMinutes) applyRefreshTimer();
+if (sourceConfigs.length) fetchAllSources();
