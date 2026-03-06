@@ -1,3 +1,6 @@
+<<<<<<< HEAD
+firebase-debug.log
+=======
 # Logs
 logs
 *.log
@@ -67,3 +70,4 @@ node_modules/
 
 # dataconnect generated files
 .dataconnect
+>>>>>>> origin/main
