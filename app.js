@@ -6,6 +6,7 @@ const baseRecords = [
   { date: '2026-01-25', country: 'RO', channel: 'compari', score: 4.0, reviews: 128 },
   { date: '2026-02-02', country: 'DE', channel: 'trustedshop', score: 4.7, reviews: 460 },
   { date: '2026-02-05', country: 'DE', channel: 'idealo.de', score: 4.4, reviews: 255 },
+<<<<<<< HEAD
   { date: '2026-02-11', country: 'AT', channel: 'idealo.at', score: 4.2, reviews: 174 }
 ];
 
@@ -45,6 +46,25 @@ const intervalStorageKey = 'bruderland-api-refresh-minutes';
 const syncMetaStorageKey = 'bruderland-sync-meta';
 const preserveHistoryStorageKey = 'bruderland-preserve-history';
 const activeTabStorageKey = 'bruderland-active-tab';
+=======
+  { date: '2026-02-11', country: 'AT', channel: 'idealo.at', score: 4.2, reviews: 174 },
+  { date: '2026-02-17', country: 'CZ', channel: 'heureka.cz', score: 4.8, reviews: 289 },
+  { date: '2026-02-23', country: 'SK', channel: 'heureka.sk', score: 4.6, reviews: 201 }
+];
+
+const channelDefaults = [
+  { name: 'heureka.cz', country: 'CZ' },
+  { name: 'heureka.sk', country: 'SK' },
+  { name: 'arukereso', country: 'HU' },
+  { name: 'ceneo', country: 'PL' },
+  { name: 'compari', country: 'RO' },
+  { name: 'trustedshop', country: 'DE' },
+  { name: 'idealo.de', country: 'DE' },
+  { name: 'idealo.at', country: 'AT' }
+];
+
+const storageKey = 'bruderland-channel-registry';
+>>>>>>> origin/main
 
 const dateFrom = document.querySelector('#dateFrom');
 const dateTo = document.querySelector('#dateTo');
@@ -54,6 +74,7 @@ const summaryCards = document.querySelector('#summaryCards');
 const countryRows = document.querySelector('#countryRows');
 const channelRows = document.querySelector('#channelRows');
 const resetFilters = document.querySelector('#resetFilters');
+<<<<<<< HEAD
 
 const sourceRows = document.querySelector('#sourceRows');
 const refreshMinutes = document.querySelector('#refreshMinutes');
@@ -240,6 +261,45 @@ function weightedAverage(inputRecords) {
 function groupBy(inputRecords, key) {
   const groups = new Map();
   inputRecords.forEach((record) => {
+=======
+const channelForm = document.querySelector('#channelForm');
+const channelName = document.querySelector('#channelName');
+const channelCountry = document.querySelector('#channelCountry');
+const channelRegistry = document.querySelector('#channelRegistry');
+
+function loadRegistry() {
+  const saved = localStorage.getItem(storageKey);
+  if (!saved) return [...channelDefaults];
+  try {
+    return JSON.parse(saved);
+  } catch {
+    return [...channelDefaults];
+  }
+}
+
+let registry = loadRegistry();
+
+function saveRegistry() {
+  localStorage.setItem(storageKey, JSON.stringify(registry));
+}
+
+function weightedAverage(records) {
+  if (records.length === 0) return 0;
+  const totals = records.reduce(
+    (acc, item) => {
+      acc.scoreSum += item.score * item.reviews;
+      acc.reviewSum += item.reviews;
+      return acc;
+    },
+    { scoreSum: 0, reviewSum: 0 }
+  );
+  return totals.reviewSum === 0 ? 0 : totals.scoreSum / totals.reviewSum;
+}
+
+function groupBy(records, key) {
+  const groups = new Map();
+  records.forEach((record) => {
+>>>>>>> origin/main
     const target = groups.get(record[key]) || [];
     target.push(record);
     groups.set(record[key], target);
@@ -258,6 +318,7 @@ function createOption(select, value, label) {
   select.append(option);
 }
 
+<<<<<<< HEAD
 function sourceId(channel, country) {
   return `${channel}-${country}`.toLowerCase().replace(/[^a-z0-9]+/g, '-');
 }
@@ -281,6 +342,35 @@ function populateFilters() {
 
 function filteredRecords() {
   return records.filter((record) => {
+=======
+function populateFilters() {
+  countryFilter.innerHTML = '';
+  channelFilter.innerHTML = '';
+
+  createOption(countryFilter, 'ALL', 'Všechny země');
+  createOption(channelFilter, 'ALL', 'Všechny kanály');
+
+  const countries = [...new Set(registry.map((entry) => entry.country))].sort();
+  const channels = [...new Set(registry.map((entry) => entry.name))].sort();
+
+  countries.forEach((country) => createOption(countryFilter, country, country));
+  channels.forEach((channel) => createOption(channelFilter, channel, channel));
+}
+
+function renderRegistry() {
+  channelRegistry.innerHTML = '';
+  registry
+    .sort((a, b) => a.name.localeCompare(b.name))
+    .forEach((entry) => {
+      const item = document.createElement('li');
+      item.textContent = `${entry.name} (${entry.country})`;
+      channelRegistry.append(item);
+    });
+}
+
+function filteredRecords() {
+  return baseRecords.filter((record) => {
+>>>>>>> origin/main
     if (countryFilter.value !== 'ALL' && record.country !== countryFilter.value) return false;
     if (channelFilter.value !== 'ALL' && record.channel !== channelFilter.value) return false;
     if (dateFrom.value && record.date < dateFrom.value) return false;
@@ -289,16 +379,26 @@ function filteredRecords() {
   });
 }
 
+<<<<<<< HEAD
 function renderSummary(inputRecords) {
   const avg = weightedAverage(inputRecords);
   const totalReviews = inputRecords.reduce((sum, item) => sum + item.reviews, 0);
   const countries = new Set(inputRecords.map((r) => r.country)).size;
   const channels = new Set(inputRecords.map((r) => r.channel)).size;
+=======
+function renderSummary(records) {
+  const avg = weightedAverage(records);
+  const totalReviews = records.reduce((sum, item) => sum + item.reviews, 0);
+  const countries = new Set(records.map((r) => r.country)).size;
+  const channels = new Set(records.map((r) => r.channel)).size;
+
+>>>>>>> origin/main
   summaryCards.innerHTML = [
     ['Průměrné hodnocení', avg.toFixed(2)],
     ['Počet recenzí', totalReviews.toLocaleString('cs-CZ')],
     ['Aktivní země', countries],
     ['Aktivní kanály', channels]
+<<<<<<< HEAD
   ].map(([title, value]) => `<div class="card"><div>${title}</div><strong>${value}</strong></div>`).join('');
 }
 
@@ -602,6 +702,43 @@ function renderDashboard() {
 }
 
 function resetFiltersAll() {
+=======
+  ]
+    .map(
+      ([title, value]) => `<div class="card"><div>${title}</div><strong>${value}</strong></div>`
+    )
+    .join('');
+}
+
+function renderTable(rowsNode, rows, label) {
+  rowsNode.innerHTML = '';
+  if (rows.length === 0) {
+    rowsNode.innerHTML = `<tr><td colspan="3">Žádná data pro zvolené filtry.</td></tr>`;
+    return;
+  }
+
+  rows
+    .sort((a, b) => b.avg - a.avg)
+    .forEach((entry) => {
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td>${entry.name}</td>
+        <td>${entry.avg.toFixed(2)} / 5</td>
+        <td>${entry.reviews.toLocaleString('cs-CZ')}</td>
+      `;
+      rowsNode.append(row);
+    });
+}
+
+function renderDashboard() {
+  const records = filteredRecords();
+  renderSummary(records);
+  renderTable(countryRows, groupBy(records, 'country'), 'Země');
+  renderTable(channelRows, groupBy(records, 'channel'), 'Kanál');
+}
+
+function resetAllFilters() {
+>>>>>>> origin/main
   dateFrom.value = '';
   dateTo.value = '';
   countryFilter.value = 'ALL';
@@ -609,6 +746,7 @@ function resetFiltersAll() {
   renderDashboard();
 }
 
+<<<<<<< HEAD
 function switchTab(tabId) {
   const hasTarget = [...tabPanes].some((pane) => pane.id === tabId);
   const resolved = hasTarget ? tabId : 'analyticsTab';
@@ -692,3 +830,32 @@ renderDashboard();
 updateSyncIndicator();
 applyRefreshTimer();
 fetchAllSources();
+=======
+[channelFilter, countryFilter, dateFrom, dateTo].forEach((el) => {
+  el.addEventListener('change', renderDashboard);
+});
+
+resetFilters.addEventListener('click', resetAllFilters);
+
+channelForm.addEventListener('submit', (event) => {
+  event.preventDefault();
+  const name = channelName.value.trim().toLowerCase();
+  const country = channelCountry.value.trim().toUpperCase();
+
+  if (!name || !country) return;
+
+  const exists = registry.some((entry) => entry.name === name && entry.country === country);
+  if (!exists) {
+    registry.push({ name, country });
+    saveRegistry();
+    populateFilters();
+    renderRegistry();
+  }
+
+  channelForm.reset();
+});
+
+populateFilters();
+renderRegistry();
+renderDashboard();
+>>>>>>> origin/main

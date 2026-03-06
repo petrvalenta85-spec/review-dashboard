@@ -4,6 +4,7 @@ Jednoduchá webová aplikace pro centralizovaný přehled zákaznických hodnoce
 
 ## Co umí
 
+<<<<<<< HEAD
 - Záložky pro oddělení analytické části (**Dashboard**) a konfigurační části (**Nastavení zdrojů**).
 
 - Agregace metrik na úrovni celku, zemí i jednotlivých kanálů.
@@ -16,15 +17,37 @@ Jednoduchá webová aplikace pro centralizovaný přehled zákaznických hodnoce
 - Indikátor zdroje dat (Live API vs Demo) a čas poslední úspěšné synchronizace.
 - Tlačítko synchronizace pro každý jednotlivý kanál (bez načítání všeho).
 - Volba **Zachovat historická data (append)** pro API, která vrací jen klouzavé časové okno.
+=======
+- Agregace metrik na úrovni celku, zemí i jednotlivých kanálů.
+- Filtrování dle období (`od` / `do`), země a kanálu.
+- Přehledné souhrnné KPI karty.
+- Správa registru kanálů (lokálně přes `localStorage`) pro snadné rozšíření o další zdroje.
+
+## Podporované kanály (výchozí)
+
+- heureka.cz
+- heureka.sk
+- arukereso
+- ceneo
+- compari
+- trustedshop
+- idealo.de
+- idealo.at
+>>>>>>> origin/main
 
 ## Spuštění
 
 ```bash
+<<<<<<< HEAD
 python3 dev_server.py
+=======
+python3 -m http.server 8000
+>>>>>>> origin/main
 ```
 
 Aplikace bude dostupná na `http://localhost:8000`.
 
+<<<<<<< HEAD
 ### Spuštění ve VS Code
 
 1. Otevřete projekt ve VS Code.
@@ -508,3 +531,6 @@ git push origin feat/merge-sync-layer-2
 Tím se **stejný PR #5 automaticky aktualizuje** – není potřeba zakládat nový PR.
 >>>>>>> 00dc4b1 (Document how to update existing PR #5 on same branch)
 # trigger
+=======
+> Poznámka: Data jsou zatím demonstrační (`app.js`). Dalším krokem je připojení na API/ETL pro pravidelný import hodnocení z jednotlivých portálů.
+>>>>>>> origin/main

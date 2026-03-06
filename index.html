@@ -9,6 +9,7 @@
   <body>
     <header>
       <h1>Bruderland · Dashboard zákaznických hodnocení</h1>
+<<<<<<< HEAD
       <p>Automatický přehled metrik napojený na samostatná API jednotlivých zdrojů.</p>
     </header>
 
@@ -173,6 +174,92 @@
             <tbody id="apiAvailabilityRows"></tbody>
           </table>
         </section>
+=======
+      <p>
+        Přehled metrik z kanálů Heureka, Arukereso, Ceneo, Compari, Trusted Shops a Idealo.
+      </p>
+    </header>
+
+    <main>
+      <section class="panel filters">
+        <h2>Filtry</h2>
+        <div class="filter-grid">
+          <label>
+            Od
+            <input id="dateFrom" type="date" />
+          </label>
+          <label>
+            Do
+            <input id="dateTo" type="date" />
+          </label>
+          <label>
+            Země
+            <select id="countryFilter"></select>
+          </label>
+          <label>
+            Kanál
+            <select id="channelFilter"></select>
+          </label>
+          <button id="resetFilters" class="secondary">Reset filtrů</button>
+        </div>
+      </section>
+
+      <section class="panel metrics">
+        <h2>Souhrn</h2>
+        <div class="cards" id="summaryCards"></div>
+      </section>
+
+      <section class="panel tables">
+        <h2>Vyhodnocení</h2>
+        <div class="table-grid">
+          <article>
+            <h3>Podle zemí</h3>
+            <table>
+              <thead>
+                <tr>
+                  <th>Země</th>
+                  <th>Průměrné hodnocení</th>
+                  <th>Počet recenzí</th>
+                </tr>
+              </thead>
+              <tbody id="countryRows"></tbody>
+            </table>
+          </article>
+
+          <article>
+            <h3>Podle kanálů</h3>
+            <table>
+              <thead>
+                <tr>
+                  <th>Kanál</th>
+                  <th>Průměrné hodnocení</th>
+                  <th>Počet recenzí</th>
+                </tr>
+              </thead>
+              <tbody id="channelRows"></tbody>
+            </table>
+          </article>
+        </div>
+      </section>
+
+      <section class="panel manage-channels">
+        <h2>Správa kanálů</h2>
+        <p>
+          Seznam podporovaných kanálů lze rozšiřovat bez zásahu do kódu pomocí formuláře níže.
+        </p>
+        <form id="channelForm">
+          <label>
+            Název kanálu
+            <input id="channelName" required placeholder="např. Google Reviews" />
+          </label>
+          <label>
+            Kód země
+            <input id="channelCountry" required maxlength="2" placeholder="CZ" />
+          </label>
+          <button type="submit">Přidat kanál</button>
+        </form>
+        <ul id="channelRegistry"></ul>
+>>>>>>> origin/main
       </section>
     </main>
 

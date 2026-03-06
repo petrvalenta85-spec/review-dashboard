@@ -19,7 +19,11 @@ header {
 }
 
 main {
+<<<<<<< HEAD
   max-width: 1200px;
+=======
+  max-width: 1100px;
+>>>>>>> origin/main
   margin: 1.5rem auto;
   padding: 0 1rem 2rem;
   display: grid;
@@ -33,6 +37,7 @@ main {
   padding: 1rem;
 }
 
+<<<<<<< HEAD
 
 .tabs {
   display: flex;
@@ -60,6 +65,10 @@ main {
 
 .filter-grid,
 .sync-toolbar {
+=======
+.filter-grid,
+#channelForm {
+>>>>>>> origin/main
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 0.75rem;
@@ -92,6 +101,7 @@ button.secondary {
   background: #6b7280;
 }
 
+<<<<<<< HEAD
 
 .sync-indicators {
   display: flex;
@@ -124,6 +134,8 @@ button.secondary {
   font-size: 0.85rem;
 }
 
+=======
+>>>>>>> origin/main
 .cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -147,6 +159,7 @@ button.secondary {
   gap: 1rem;
 }
 
+<<<<<<< HEAD
 .table-scroll {
   overflow-x: auto;
 }
@@ -173,6 +186,8 @@ button.secondary {
   gap: 0.5rem;
 }
 
+=======
+>>>>>>> origin/main
 table {
   width: 100%;
   border-collapse: collapse;
@@ -182,6 +197,7 @@ th,
 td {
   text-align: left;
   border-bottom: 1px solid #e5e7eb;
+<<<<<<< HEAD
   padding: 0.45rem 0.25rem;
   vertical-align: top;
 }
@@ -208,4 +224,14 @@ td {
 
 .delete-one {
   margin-left: 0.35rem;
+=======
+  padding: 0.4rem 0;
+}
+
+#channelRegistry {
+  margin: 1rem 0 0;
+  padding-left: 1rem;
+  display: grid;
+  gap: 0.25rem;
+>>>>>>> origin/main
 }
