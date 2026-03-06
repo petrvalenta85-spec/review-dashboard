@@ -1,5 +1,7 @@
 # Bruderland Review Dashboard
 
+> Testovací mikro-úprava: ověření, že se změny na větvi správně propisují do PR.
+
 Jednoduchá webová aplikace pro centralizovaný přehled zákaznických hodnocení napříč jazykovými mutacemi a kanály.
 
 ## Co umí
